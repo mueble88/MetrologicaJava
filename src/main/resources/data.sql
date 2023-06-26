@@ -1,0 +1,4 @@
+INSERT INTO metrologica.user (id, created_at, date_of_birth, email, last_name, last_updated_at, name, password, phone) VALUES (2, 1686602689, '1994-10-30 19:00:00', 'jandresjc@gmail.com', 'Jaramillo', 1686602689, 'Andres', '{bcrypt}$2a$10$x8VH3TR/U/HR2pV61pc4z.cXu6Z4tMiMghlAlLJrFwEiq4q6BW8mW', '111');
+INSERT INTO metrologica.client (id, address, email, name, nit, city_id) VALUES (1, 'calle 48 bg', 'car@gmail.com', 'Carlos', '111111111', null);
+INSERT INTO metrologica.client (id, address, email, name, nit, city_id) VALUES (2, 'calle 8 a', 'MZ@gmail.com', 'Marco', '2222222', null);
+INSERT INTO metrologica.client (id, address, email, name, nit, city_id) VALUES (3, 'calle 7', 'rot@gmail.com', 'Robert', '33333333', null);
