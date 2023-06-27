@@ -29,9 +29,9 @@ public class ClientController {
 
     @GetMapping("/clients")
     private APIResponseDto<Page<Client>> getClients(@RequestParam(defaultValue = "0") int offset,
-                                                @RequestParam(defaultValue = "10") int pageSize,
-                                                @RequestParam(defaultValue = "name") String field,
-                                                @RequestParam(defaultValue = "asc") String sort){
+                                                    @RequestParam(defaultValue = "10") int pageSize,
+                                                    @RequestParam(defaultValue = "name") String field,
+                                                    @RequestParam(defaultValue = "asc") String sort){
 
         Page<Client> clientWithPagination = clientService.findClientWithPaginationAndSorting(offset, pageSize, field, sort);
         return new APIResponseDto<>(clientWithPagination.getSize(), clientWithPagination);
