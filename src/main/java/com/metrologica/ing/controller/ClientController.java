@@ -1,22 +1,14 @@
 package com.metrologica.ing.controller;
 
-import com.metrologica.ing.dto.APIResponseDto;
 import com.metrologica.ing.dto.ClientDto;
 import com.metrologica.ing.model.City;
 import com.metrologica.ing.model.Client;
-import com.metrologica.ing.model.User;
-import com.metrologica.ing.repository.ClientRepository;
-import com.metrologica.ing.repository.UserRepository;
 import com.metrologica.ing.service.ClientService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.crypto.factory.PasswordEncoderFactories;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Date;
 import java.util.List;
 
 @RestController
@@ -28,13 +20,14 @@ public class ClientController {
     private ClientService clientService;
 
     @GetMapping("/clients")
-    private APIResponseDto<Page<Client>> getClients(@RequestParam(defaultValue = "0") int offset,
-                                                @RequestParam(defaultValue = "10") int pageSize,
-                                                @RequestParam(defaultValue = "name") String field,
-                                                @RequestParam(defaultValue = "asc") String sort){
+    private List<Client> getClients(@RequestParam(defaultValue = "0") int offset,
+                                                  @RequestParam(defaultValue = "10") int pageSize,
+                                                  @RequestParam(defaultValue = "name") String field,
+                                                  @RequestParam(defaultValue = "asc") String sort){
 
-        Page<Client> clientWithPagination = clientService.findClientWithPaginationAndSorting(offset, pageSize, field, sort);
-        return new APIResponseDto<>(clientWithPagination.getSize(), clientWithPagination);
+        //Page<Client> clientWithPagination = clientService.findClientWithPaginationAndSorting(offset, pageSize, field, sort);
+        //return new APIResponseDto<>(clientWithPagination.getSize(), clientWithPagination);
+        return clientService.findAll();
     }
 
     @GetMapping(value = "/client/{id}")

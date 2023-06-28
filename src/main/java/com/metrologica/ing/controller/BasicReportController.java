@@ -94,6 +94,16 @@ public class BasicReportController {
 //        return new ResponseEntity<BasicReport>(HttpStatus.BAD_REQUEST);
     }
 
+    @GetMapping("/reports")
+    private List<BasicReport> getClients(@RequestParam(defaultValue = "0") int offset,
+                                    @RequestParam(defaultValue = "10") int pageSize,
+                                    @RequestParam(defaultValue = "name") String field,
+                                    @RequestParam(defaultValue = "asc") String sort){
+
+        //Page<Client> clientWithPagination = clientService.findClientWithPaginationAndSorting(offset, pageSize, field, sort);
+        //return new APIResponseDto<>(clientWithPagination.getSize(), clientWithPagination);
+        return basicReportService.findAll();
+    }
 
 
 
