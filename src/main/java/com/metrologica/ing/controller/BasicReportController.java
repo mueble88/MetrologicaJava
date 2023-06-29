@@ -90,7 +90,7 @@ public class BasicReportController {
         basicReport.setClient(client);
 //        basicReportService.save(basicReport);
 
-        String nombreArchivo = "PDF"+client.getName()+".pdf";
+        String nombreArchivo = "archivoPDF"+client.getName()+".pdf";
         pdfService.savePDF( nombreArchivo, client, equipmentInfo, traceInfo, humedIn, temIn, temOut);
 
         return new ResponseEntity<BasicReport>(basicReport, HttpStatus.OK);

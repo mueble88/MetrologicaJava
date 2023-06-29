@@ -2,40 +2,40 @@ package com.metrologica.ing.model;
 
 public class Measures {
 
-    private float error;
-    private float patron;
-    private float equipoH;
+    private double error;
+    private double patron;
+    private double equipoH;
 
     public Measures() {
     }
 
-    public Measures(float error, float patron, float equipoH) {
+    public Measures(double error, double patron, double equipoH) {
         this.error = error;
         this.patron = patron;
         this.equipoH = equipoH;
     }
 
-    public float getError() {
+    public double getError() {
         return error;
     }
 
-    public void setError(float error) {
+    public void setError(double error) {
         this.error = error;
     }
 
-    public float getPatron() {
+    public double getPatron() {
         return patron;
     }
 
-    public void setPatron(float patron) {
+    public void setPatron(double patron) {
         this.patron = patron;
     }
 
-    public float getEquipoH() {
+    public double getEquipoH() {
         return equipoH;
     }
 
-    public void setEquipoH(float equipoH) {
+    public void setEquipoH(double equipoH) {
         this.equipoH = equipoH;
     }
 }

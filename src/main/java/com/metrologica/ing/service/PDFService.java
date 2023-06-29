@@ -10,15 +10,31 @@ import com.metrologica.ing.model.Client;
 import com.metrologica.ing.model.EquipmentInfo;
 import com.metrologica.ing.model.Measures;
 import com.metrologica.ing.model.TraceInfo;
+import com.metrologica.ing.util.Utils;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 
 @Service
 public class PDFService {
+
+    double patternHumedIn = 0;
+    double equipmentHumedIn = 0;
+    double errorHumedIn = 0;
+    double standardDeviationHumedIn = 0;
+    double patternTemIn = 0;
+    double equipmentTemIn = 0;
+    double errorTemIn = 0;
+    double standardDeviationTemIn = 0;
+    double patternTemOut = 0;
+    double equipmentTemOut  = 0;
+    double errorTemOut= 0;
+    double standardDeviationTemOut = 0;
 
     public void savePDF(String nombreArchivo, Client client, EquipmentInfo equipmentInfo, TraceInfo traceInfo,HumedInDto humedIn, TemInDto temIn, TemOutDto temOut) {
         Document documento = new Document();
@@ -99,7 +115,7 @@ public class PDFService {
                     FontFactory.getFont("arial",9,Font.NORMAL,BaseColor.BLACK));
             paragraphCalibration1.setAlignment(Chunk.ALIGN_LEFT);
 
-            Paragraph incertidumbre = new Paragraph("Incertidumbre de la calibración\n",
+            Paragraph incertidumbre = new Paragraph("Incertidumbre De La Medición\n",
                     FontFactory.getFont("arial",9,Font.BOLD,BaseColor.BLACK)
             );
             incertidumbre.setAlignment(Chunk.ALIGN_LEFT);
@@ -109,7 +125,7 @@ public class PDFService {
                     FontFactory.getFont("arial",9,Font.NORMAL,BaseColor.BLACK));
             paragraphCalibration2.setAlignment(Chunk.ALIGN_LEFT);
 
-            Paragraph fuenteIncertidumbre = new Paragraph("Fuentes de incertidumbre\n",
+            Paragraph fuenteIncertidumbre = new Paragraph("Fuentes De Incertidumbre\n",
                     FontFactory.getFont("arial",9,Font.BOLD,BaseColor.BLACK)
             );
             fuenteIncertidumbre.setAlignment(Chunk.ALIGN_LEFT);
@@ -147,11 +163,15 @@ public class PDFService {
             );
             tituloHumedadIn.setAlignment(Chunk.ALIGN_CENTER);
             PdfPTable tableHumedIn = tableHumedIn(humedIn);
+            PdfPTable tableResultHumedIn =  tableResult(patternHumedIn, equipmentHumedIn, errorHumedIn, standardDeviationHumedIn);
 
             documento.add(tituloHumedadIn);
             documento.add(saltolineaTablas);
             documento.add(tableHumedIn);
-
+            documento.add(saltolineaTablas);
+            documento.add(tableResultHumedIn);
+            documento.add(saltolineaTablas);
+            documento.add(footer);
 
             // Tercera pagina 4da--------------------------------------------------------------->
             documento.newPage();
@@ -160,11 +180,15 @@ public class PDFService {
             );
             tituloTemIn.setAlignment(Chunk.ALIGN_CENTER);
             PdfPTable tableTemIn = tableTemIn(temIn);
+            PdfPTable tableResultTemIn =  tableResult(patternTemIn, equipmentTemIn, errorTemIn, standardDeviationTemIn);
 
             documento.add(tituloTemIn);
             documento.add(saltolineaTablas);
             documento.add(tableTemIn);
-
+            documento.add(saltolineaTablas);
+            documento.add(tableResultTemIn);
+            documento.add(saltolineaTablas);
+            documento.add(footer);
 
             // Tercera pagina 5da--------------------------------------------------------------->
             documento.newPage();
@@ -174,11 +198,15 @@ public class PDFService {
             );
             tituloTemOut.setAlignment(Chunk.ALIGN_CENTER);
             PdfPTable tableTemOut = tableTemOut(temOut);
+            PdfPTable tableResultTemOut =  tableResult(patternTemOut, equipmentTemOut, errorTemOut, standardDeviationTemOut);
 
             documento.add(tituloTemOut);
             documento.add(saltolineaTablas);
             documento.add(tableTemOut);
-
+            documento.add(saltolineaTablas);
+            documento.add(tableResultTemOut);
+            documento.add(saltolineaTablas);
+            documento.add(footer);
 
             // Cierra el documento
             documento.close();
@@ -748,6 +776,15 @@ public class PDFService {
         PdfPTable table = new PdfPTable(5);
         table.setWidths(new float[] {5, 20, 20, 20, 20});
         int size = 9;
+        double[] equipos = new double[humedIn.getMeasures().length];
+        double[] patrones = new double[humedIn.getMeasures().length];
+        double[] errores = new double[humedIn.getMeasures().length];
+        double promedioEquipo = 0;
+        double promedioPatron = 0;
+        double promedioError = 0;
+        double standardDeviationEquipment = 0;
+        double standardDeviationPattern = 0;
+        double standardDeviationError= 0;
 
         PdfPCell cellN = new PdfPCell(new Paragraph("N#",FontFactory.getFont("arial",size,Font.NORMAL,BaseColor.BLACK)));
         cellN.setFixedHeight(13f);
@@ -774,9 +811,10 @@ public class PDFService {
         cellError.setHorizontalAlignment(Element.ALIGN_CENTER);
         table.addCell(cellError);
 
-        Measures measures = new Measures();
         for (int i = 0; i < humedIn.getMeasures().length; i++){
-            measures = humedIn.getMeasures()[i];
+            equipos[i] = humedIn.getMeasures()[i].getEquipoH();
+            patrones[i] = humedIn.getMeasures()[i].getPatron();
+            errores[i] = humedIn.getMeasures()[i].getError();
 
             PdfPCell cell1 = new PdfPCell(new Paragraph(String.valueOf(i+1),FontFactory.getFont("arial",size,Font.NORMAL,BaseColor.BLACK)));
             cell1.setFixedHeight(14f);
@@ -788,22 +826,81 @@ public class PDFService {
             cellGrados.setHorizontalAlignment(Element.ALIGN_CENTER);
             table.addCell(cellGrados);
 
-            PdfPCell cellEquipoOut = new PdfPCell(new Paragraph(String.valueOf(measures.getEquipoH()), FontFactory.getFont("arial",size,Font.NORMAL,BaseColor.BLACK)));
+            PdfPCell cellEquipoOut = new PdfPCell(new Paragraph(String.valueOf(equipos[i]), FontFactory.getFont("arial",size,Font.NORMAL,BaseColor.BLACK)));
             cellEquipoOut.setFixedHeight(14f);
             cellEquipoOut.setHorizontalAlignment(Element.ALIGN_CENTER);
             table.addCell(cellEquipoOut);
 
-            PdfPCell patron = new PdfPCell(new Paragraph(String.valueOf(measures.getPatron()), FontFactory.getFont("arial",size,Font.NORMAL,BaseColor.BLACK)));
+            PdfPCell patron = new PdfPCell(new Paragraph(String.valueOf(patrones[i]), FontFactory.getFont("arial",size,Font.NORMAL,BaseColor.BLACK)));
             patron.setFixedHeight(16f);
             patron.setHorizontalAlignment(Element.ALIGN_CENTER);
             table.addCell(patron);
 
-            PdfPCell error = new PdfPCell(new Paragraph(String.valueOf(measures.getError()), FontFactory.getFont("arial",size,Font.NORMAL,BaseColor.BLACK)));
+            PdfPCell error = new PdfPCell(new Paragraph(String.valueOf(errores[i]), FontFactory.getFont("arial",size,Font.NORMAL,BaseColor.BLACK)));
             error.setFixedHeight(16f);
             error.setHorizontalAlignment(Element.ALIGN_CENTER);
             table.addCell(error);
 
         }
+
+        //        promedios
+
+        promedioEquipo = Utils.calculateAverage(equipos);
+        promedioPatron = Utils.calculateAverage(patrones);
+        promedioError = Utils.calculateAverage(errores);
+
+        PdfPCell cellPromedios = new PdfPCell(new Paragraph("PROMEDIOS",FontFactory.getFont("arial",size,Font.NORMAL,BaseColor.BLACK)));
+        cellPromedios.setColspan(2);
+        cellPromedios.setFixedHeight(20f);
+        cellPromedios.setHorizontalAlignment(Element.ALIGN_CENTER);
+        table.addCell(cellPromedios);
+
+        PdfPCell cellEquipoPromedio = new PdfPCell(new Paragraph(String.valueOf(promedioEquipo),FontFactory.getFont("arial",size,Font.NORMAL,BaseColor.BLACK)));
+        cellEquipoPromedio.setFixedHeight(20f);
+        cellEquipoPromedio.setHorizontalAlignment(Element.ALIGN_CENTER);
+        table.addCell(cellEquipoPromedio);
+
+        PdfPCell cellPatronPromedio = new PdfPCell(new Paragraph(String.valueOf(promedioPatron),FontFactory.getFont("arial",size,Font.NORMAL,BaseColor.BLACK)));
+        cellPatronPromedio.setFixedHeight(20f);
+        cellPatronPromedio.setHorizontalAlignment(Element.ALIGN_CENTER);
+        table.addCell(cellPatronPromedio);
+
+        PdfPCell cellErrorPromedio = new PdfPCell(new Paragraph(String.valueOf(promedioError),FontFactory.getFont("arial",size,Font.NORMAL,BaseColor.BLACK)));
+        cellErrorPromedio.setFixedHeight(20f);
+        cellErrorPromedio.setHorizontalAlignment(Element.ALIGN_CENTER);
+        table.addCell(cellErrorPromedio);
+
+        //  Desviación estandar
+
+        standardDeviationEquipment = Utils.calculateStandardDeviation(equipos);
+        standardDeviationPattern = Utils.calculateStandardDeviation(patrones);
+        standardDeviationError = Utils.calculateStandardDeviation(errores);
+
+        PdfPCell cellDesviacion = new PdfPCell(new Paragraph("DESVIACIÓN ESTÁNDAR",FontFactory.getFont("arial",size,Font.NORMAL,BaseColor.BLACK)));
+        cellDesviacion.setColspan(2);
+        cellDesviacion.setFixedHeight(20f);
+        cellDesviacion.setHorizontalAlignment(Element.ALIGN_CENTER);
+        table.addCell(cellDesviacion);
+
+        PdfPCell cellEquipmentDesviation = new PdfPCell(new Paragraph(String.valueOf(standardDeviationEquipment),FontFactory.getFont("arial",size,Font.NORMAL,BaseColor.BLACK)));
+        cellEquipmentDesviation.setFixedHeight(20f);
+        cellEquipmentDesviation.setHorizontalAlignment(Element.ALIGN_CENTER);
+        table.addCell(cellEquipmentDesviation);
+
+        PdfPCell cellPatterDesviation = new PdfPCell(new Paragraph(String.valueOf(standardDeviationPattern),FontFactory.getFont("arial",size,Font.NORMAL,BaseColor.BLACK)));
+        cellPatterDesviation.setFixedHeight(20f);
+        cellPatterDesviation.setHorizontalAlignment(Element.ALIGN_CENTER);
+        table.addCell(cellPatterDesviation);
+
+        PdfPCell cellErrorDesviation = new PdfPCell(new Paragraph(String.valueOf(standardDeviationError),FontFactory.getFont("arial",size,Font.NORMAL,BaseColor.BLACK)));
+        cellErrorDesviation.setFixedHeight(20f);
+        cellErrorDesviation.setHorizontalAlignment(Element.ALIGN_CENTER);
+        table.addCell(cellErrorDesviation);
+
+        patternHumedIn = promedioPatron;
+        equipmentHumedIn = promedioEquipo;
+        errorHumedIn = promedioError;
+        standardDeviationHumedIn = standardDeviationPattern;
 
         return table;
     }
@@ -814,6 +911,15 @@ public class PDFService {
         PdfPTable table = new PdfPTable(5);
         table.setWidths(new float[] {5, 20, 20, 20, 20});
         int size = 9;
+        double[] equipos = new double[temIn.getMeasures().length];
+        double[] patrones = new double[temIn.getMeasures().length];
+        double[] errores = new double[temIn.getMeasures().length];
+        double promedioEquipo = 0;
+        double promedioPatron = 0;
+        double promedioError = 0;
+        double standardDeviationEquipment = 0;
+        double standardDeviationPattern = 0;
+        double standardDeviationError= 0;
 
         PdfPCell cellN = new PdfPCell(new Paragraph("N#",FontFactory.getFont("arial",size,Font.NORMAL,BaseColor.BLACK)));
         cellN.setFixedHeight(13f);
@@ -840,10 +946,11 @@ public class PDFService {
         cellError.setHorizontalAlignment(Element.ALIGN_CENTER);
         table.addCell(cellError);
 
-        Measures measures = new Measures();
 
         for (int i = 0; i < temIn.getMeasures().length; i++){
-            measures = temIn.getMeasures()[i];
+            equipos[i] = temIn.getMeasures()[i].getEquipoH();
+            patrones[i] = temIn.getMeasures()[i].getPatron();
+            errores[i] = temIn.getMeasures()[i].getError();
 
             PdfPCell cell1 = new PdfPCell(new Paragraph(String.valueOf(i+1),FontFactory.getFont("arial",size,Font.NORMAL,BaseColor.BLACK)));
             cell1.setFixedHeight(14f);
@@ -855,22 +962,78 @@ public class PDFService {
             cellGrados.setHorizontalAlignment(Element.ALIGN_CENTER);
             table.addCell(cellGrados);
 
-            PdfPCell cellEquipoOut = new PdfPCell(new Paragraph(String.valueOf(measures.getEquipoH()), FontFactory.getFont("arial",size,Font.NORMAL,BaseColor.BLACK)));
+            PdfPCell cellEquipoOut = new PdfPCell(new Paragraph(String.valueOf(equipos[i]), FontFactory.getFont("arial",size,Font.NORMAL,BaseColor.BLACK)));
             cellEquipoOut.setFixedHeight(14f);
             cellEquipoOut.setHorizontalAlignment(Element.ALIGN_CENTER);
             table.addCell(cellEquipoOut);
 
-            PdfPCell patron = new PdfPCell(new Paragraph(String.valueOf(measures.getPatron()), FontFactory.getFont("arial",size,Font.NORMAL,BaseColor.BLACK)));
+            PdfPCell patron = new PdfPCell(new Paragraph(String.valueOf(patrones[i]), FontFactory.getFont("arial",size,Font.NORMAL,BaseColor.BLACK)));
             patron.setFixedHeight(16f);
             patron.setHorizontalAlignment(Element.ALIGN_CENTER);
             table.addCell(patron);
 
-            PdfPCell error = new PdfPCell(new Paragraph(String.valueOf(measures.getError()), FontFactory.getFont("arial",size,Font.NORMAL,BaseColor.BLACK)));
+            PdfPCell error = new PdfPCell(new Paragraph(String.valueOf(errores[i]), FontFactory.getFont("arial",size,Font.NORMAL,BaseColor.BLACK)));
             error.setFixedHeight(16f);
             error.setHorizontalAlignment(Element.ALIGN_CENTER);
             table.addCell(error);
-
         }
+
+        //        Promedios
+        promedioEquipo = Utils.calculateAverage(equipos);
+        promedioPatron = Utils.calculateAverage(patrones);
+        promedioError = Utils.calculateAverage(errores);
+
+        PdfPCell cellPromedios = new PdfPCell(new Paragraph("PROMEDIOS",FontFactory.getFont("arial",size,Font.NORMAL,BaseColor.BLACK)));
+        cellPromedios.setColspan(2);
+        cellPromedios.setFixedHeight(20f);
+        cellPromedios.setHorizontalAlignment(Element.ALIGN_CENTER);
+        table.addCell(cellPromedios);
+
+        PdfPCell cellEquipoPromedio = new PdfPCell(new Paragraph(String.valueOf(promedioEquipo),FontFactory.getFont("arial",size,Font.NORMAL,BaseColor.BLACK)));
+        cellEquipoPromedio.setFixedHeight(20f);
+        cellEquipoPromedio.setHorizontalAlignment(Element.ALIGN_CENTER);
+        table.addCell(cellEquipoPromedio);
+
+        PdfPCell cellPatronPromedio = new PdfPCell(new Paragraph(String.valueOf(promedioPatron),FontFactory.getFont("arial",size,Font.NORMAL,BaseColor.BLACK)));
+        cellPatronPromedio.setFixedHeight(20f);
+        cellPatronPromedio.setHorizontalAlignment(Element.ALIGN_CENTER);
+        table.addCell(cellPatronPromedio);
+
+        PdfPCell cellErrorPromedio = new PdfPCell(new Paragraph(String.valueOf(promedioError),FontFactory.getFont("arial",size,Font.NORMAL,BaseColor.BLACK)));
+        cellErrorPromedio.setFixedHeight(20f);
+        cellErrorPromedio.setHorizontalAlignment(Element.ALIGN_CENTER);
+        table.addCell(cellErrorPromedio);
+
+        //  Desviación estandar
+        standardDeviationEquipment = Utils.calculateStandardDeviation(equipos);
+        standardDeviationPattern = Utils.calculateStandardDeviation(patrones);
+        standardDeviationError = Utils.calculateStandardDeviation(errores);
+
+        PdfPCell cellDesviation = new PdfPCell(new Paragraph("DESVIACIÓN ESTÁNDAR",FontFactory.getFont("arial",size,Font.NORMAL,BaseColor.BLACK)));
+        cellDesviation.setColspan(2);
+        cellDesviation.setFixedHeight(20f);
+        cellDesviation.setHorizontalAlignment(Element.ALIGN_CENTER);
+        table.addCell(cellDesviation);
+
+        PdfPCell cellEquipmentDesviation = new PdfPCell(new Paragraph(String.valueOf(standardDeviationEquipment),FontFactory.getFont("arial",size,Font.NORMAL,BaseColor.BLACK)));
+        cellEquipmentDesviation.setFixedHeight(20f);
+        cellEquipmentDesviation.setHorizontalAlignment(Element.ALIGN_CENTER);
+        table.addCell(cellEquipmentDesviation);
+
+        PdfPCell cellPatternDesviation = new PdfPCell(new Paragraph(String.valueOf(standardDeviationPattern),FontFactory.getFont("arial",size,Font.NORMAL,BaseColor.BLACK)));
+        cellPatternDesviation.setFixedHeight(20f);
+        cellPatternDesviation.setHorizontalAlignment(Element.ALIGN_CENTER);
+        table.addCell(cellPatternDesviation);
+
+        PdfPCell cellErrorDesviation = new PdfPCell(new Paragraph(String.valueOf(standardDeviationError),FontFactory.getFont("arial",size,Font.NORMAL,BaseColor.BLACK)));
+        cellErrorDesviation.setFixedHeight(20f);
+        cellErrorDesviation.setHorizontalAlignment(Element.ALIGN_CENTER);
+        table.addCell(cellErrorDesviation);
+
+        patternTemIn = promedioPatron;
+        equipmentTemIn = promedioEquipo;
+        errorTemIn = promedioError;
+        standardDeviationTemIn = standardDeviationPattern;
 
         return table;
     }
@@ -880,41 +1043,49 @@ public class PDFService {
         PdfPTable table = new PdfPTable(5);
         table.setWidths(new float[] {5, 20, 20, 20, 20});
         int size = 9;
+        double[] equipos = new double[temOut.getMeasures().length];
+        double[] patrones = new double[temOut.getMeasures().length];
+        double[] errores = new double[temOut.getMeasures().length];
+        double promedioEquipo = 0;
+        double promedioPatron = 0;
+        double promedioError = 0;
+        double standardDeviationEquipment = 0;
+        double standardDeviationPattern = 0;
+        double standardDeviationError= 0;
+
 
         PdfPCell cellN = new PdfPCell(new Paragraph("N#",FontFactory.getFont("arial",size,Font.NORMAL,BaseColor.BLACK)));
-        cellN.setFixedHeight(13f);
+        cellN.setFixedHeight(15f);
         cellN.setHorizontalAlignment(Element.ALIGN_CENTER);
         table.addCell(cellN);
 
         PdfPCell cellMedicion = new PdfPCell(new Paragraph("MEDICIÓN",FontFactory.getFont("arial",size,Font.NORMAL,BaseColor.BLACK)));
-        cellMedicion.setFixedHeight(13f);
+        cellMedicion.setFixedHeight(15f);
         cellMedicion.setHorizontalAlignment(Element.ALIGN_CENTER);
         table.addCell(cellMedicion);
 
         PdfPCell cellEquipo = new PdfPCell(new Paragraph("EQUIPO OUT",FontFactory.getFont("arial",size,Font.NORMAL,BaseColor.BLACK)));
-        cellEquipo.setFixedHeight(13f);
+        cellEquipo.setFixedHeight(15f);
         cellEquipo.setHorizontalAlignment(Element.ALIGN_CENTER);
         table.addCell(cellEquipo);
 
         PdfPCell cellPatron = new PdfPCell(new Paragraph("PATRON",FontFactory.getFont("arial",size,Font.NORMAL,BaseColor.BLACK)));
-        cellPatron.setFixedHeight(13f);
+        cellPatron.setFixedHeight(15f);
         cellPatron.setHorizontalAlignment(Element.ALIGN_CENTER);
         table.addCell(cellPatron);
 
         PdfPCell cellError = new PdfPCell(new Paragraph("ERROR",FontFactory.getFont("arial",size,Font.NORMAL,BaseColor.BLACK)));
-        cellError.setFixedHeight(13f);
+        cellError.setFixedHeight(15f);
         cellError.setHorizontalAlignment(Element.ALIGN_CENTER);
         table.addCell(cellError);
 
-        Measures measures = new Measures();
-        float[] promedioEquipoH = new float[temOut.getMeasures().length];
-
         for (int i = 0; i < temOut.getMeasures().length; i++){
-            measures = temOut.getMeasures()[i];
-            promedioEquipoH[i] = measures.getEquipoH();
+            equipos[i] = temOut.getMeasures()[i].getEquipoH();
+            patrones[i] = temOut.getMeasures()[i].getPatron();
+            errores[i] = temOut.getMeasures()[i].getError();
 
             PdfPCell cell1 = new PdfPCell(new Paragraph(String.valueOf(i+1),FontFactory.getFont("arial",size,Font.NORMAL,BaseColor.BLACK)));
-            cell1.setFixedHeight(14f);
+            cell1.setFixedHeight(16f);
             cell1.setHorizontalAlignment(Element.ALIGN_CENTER);
             table.addCell(cell1);
 
@@ -923,17 +1094,17 @@ public class PDFService {
             cellGrados.setHorizontalAlignment(Element.ALIGN_CENTER);
             table.addCell(cellGrados);
 
-            PdfPCell cellEquipoOut = new PdfPCell(new Paragraph(String.valueOf(measures.getEquipoH()), FontFactory.getFont("arial",size,Font.NORMAL,BaseColor.BLACK)));
-            cellEquipoOut.setFixedHeight(14f);
+            PdfPCell cellEquipoOut = new PdfPCell(new Paragraph(String.valueOf(equipos[i]), FontFactory.getFont("arial",size,Font.NORMAL,BaseColor.BLACK)));
+            cellEquipoOut.setFixedHeight(16f);
             cellEquipoOut.setHorizontalAlignment(Element.ALIGN_CENTER);
             table.addCell(cellEquipoOut);
 
-            PdfPCell patron = new PdfPCell(new Paragraph(String.valueOf(measures.getPatron()), FontFactory.getFont("arial",size,Font.NORMAL,BaseColor.BLACK)));
+            PdfPCell patron = new PdfPCell(new Paragraph(String.valueOf(patrones[i]), FontFactory.getFont("arial",size,Font.NORMAL,BaseColor.BLACK)));
             patron.setFixedHeight(16f);
             patron.setHorizontalAlignment(Element.ALIGN_CENTER);
             table.addCell(patron);
 
-            PdfPCell error = new PdfPCell(new Paragraph(String.valueOf(measures.getError()), FontFactory.getFont("arial",size,Font.NORMAL,BaseColor.BLACK)));
+            PdfPCell error = new PdfPCell(new Paragraph(String.valueOf(errores[i]), FontFactory.getFont("arial",size,Font.NORMAL,BaseColor.BLACK)));
             error.setFixedHeight(16f);
             error.setHorizontalAlignment(Element.ALIGN_CENTER);
             table.addCell(error);
@@ -941,26 +1112,145 @@ public class PDFService {
         }
 
 //        promedios
+        promedioEquipo = Utils.calculateAverage(equipos);
+        promedioPatron = Utils.calculateAverage(patrones);
+        promedioError = Utils.calculateAverage(errores);
+
         PdfPCell cellPromedios = new PdfPCell(new Paragraph("PROMEDIOS",FontFactory.getFont("arial",size,Font.NORMAL,BaseColor.BLACK)));
         cellPromedios.setColspan(2);
-        cellPromedios.setFixedHeight(13f);
+        cellPromedios.setFixedHeight(20f);
         cellPromedios.setHorizontalAlignment(Element.ALIGN_CENTER);
         table.addCell(cellPromedios);
 
-        PdfPCell cellEquipoPromedio = new PdfPCell(new Paragraph("",FontFactory.getFont("arial",size,Font.NORMAL,BaseColor.BLACK)));
-        cellEquipoPromedio.setFixedHeight(13f);
+        PdfPCell cellEquipoPromedio = new PdfPCell(new Paragraph(String.valueOf(promedioEquipo),FontFactory.getFont("arial",size,Font.NORMAL,BaseColor.BLACK)));
+        cellEquipoPromedio.setFixedHeight(20f);
         cellEquipoPromedio.setHorizontalAlignment(Element.ALIGN_CENTER);
         table.addCell(cellEquipoPromedio);
 
-        PdfPCell cellPatronPromedio = new PdfPCell(new Paragraph("",FontFactory.getFont("arial",size,Font.NORMAL,BaseColor.BLACK)));
-        cellPatronPromedio.setFixedHeight(13f);
+        PdfPCell cellPatronPromedio = new PdfPCell(new Paragraph(String.valueOf(promedioPatron),FontFactory.getFont("arial",size,Font.NORMAL,BaseColor.BLACK)));
+        cellPatronPromedio.setFixedHeight(20f);
         cellPatronPromedio.setHorizontalAlignment(Element.ALIGN_CENTER);
         table.addCell(cellPatronPromedio);
 
-        PdfPCell cellErrorPromedio = new PdfPCell(new Paragraph("",FontFactory.getFont("arial",size,Font.NORMAL,BaseColor.BLACK)));
-        cellErrorPromedio.setFixedHeight(13f);
+        PdfPCell cellErrorPromedio = new PdfPCell(new Paragraph(String.valueOf(promedioError),FontFactory.getFont("arial",size,Font.NORMAL,BaseColor.BLACK)));
+        cellErrorPromedio.setFixedHeight(20f);
         cellErrorPromedio.setHorizontalAlignment(Element.ALIGN_CENTER);
         table.addCell(cellErrorPromedio);
+
+        //  Desviación estandar
+
+        standardDeviationEquipment = Utils.calculateStandardDeviation(equipos);
+        standardDeviationPattern = Utils.calculateStandardDeviation(patrones);
+        standardDeviationError = Utils.calculateStandardDeviation(errores);
+
+        PdfPCell cellDesviacion = new PdfPCell(new Paragraph("DESVIACIÓN ESTÁNDAR",FontFactory.getFont("arial",size,Font.NORMAL,BaseColor.BLACK)));
+        cellDesviacion.setColspan(2);
+        cellDesviacion.setFixedHeight(20f);
+        cellDesviacion.setHorizontalAlignment(Element.ALIGN_CENTER);
+        table.addCell(cellDesviacion);
+
+        PdfPCell cellEquipoDesviacion = new PdfPCell(new Paragraph(String.valueOf(standardDeviationEquipment),FontFactory.getFont("arial",size,Font.NORMAL,BaseColor.BLACK)));
+        cellEquipoDesviacion.setFixedHeight(20f);
+        cellEquipoDesviacion.setHorizontalAlignment(Element.ALIGN_CENTER);
+        table.addCell(cellEquipoDesviacion);
+
+        PdfPCell cellPatronDesviacion = new PdfPCell(new Paragraph(String.valueOf(standardDeviationPattern),FontFactory.getFont("arial",size,Font.NORMAL,BaseColor.BLACK)));
+        cellPatronDesviacion.setFixedHeight(20f);
+        cellPatronDesviacion.setHorizontalAlignment(Element.ALIGN_CENTER);
+        table.addCell(cellPatronDesviacion);
+
+        PdfPCell cellErrorDesviacion = new PdfPCell(new Paragraph(String.valueOf(standardDeviationError),FontFactory.getFont("arial",size,Font.NORMAL,BaseColor.BLACK)));
+        cellErrorDesviacion.setFixedHeight(20f);
+        cellErrorDesviacion.setHorizontalAlignment(Element.ALIGN_CENTER);
+        table.addCell(cellErrorDesviacion);
+
+        patternTemOut = promedioPatron;
+        equipmentTemOut = promedioEquipo;
+        errorTemOut = promedioError;
+        standardDeviationTemOut = standardDeviationPattern;
+
+        return table;
+    }
+
+    public PdfPTable tableResult(double pattern,
+                                 double equipment,
+                                 double error,
+                                 double standardDesviation) throws DocumentException {
+
+        PdfPTable table = new PdfPTable(10);
+        table.setWidths(new float[] {10,10,10,10,10,10,10,10,10,20});
+        int size = 8;
+
+
+        PdfPCell cellPatron = new PdfPCell(new Paragraph("PATRON",FontFactory.getFont("arial",size,Font.NORMAL,BaseColor.BLACK)));
+        cellPatron.setFixedHeight(15f);
+        cellPatron.setHorizontalAlignment(Element.ALIGN_CENTER);
+        table.addCell(cellPatron);
+
+        PdfPCell cellEquipo = new PdfPCell(new Paragraph("EQUIPO",FontFactory.getFont("arial",size,Font.NORMAL,BaseColor.BLACK)));
+        cellEquipo.setFixedHeight(15f);
+        cellEquipo.setHorizontalAlignment(Element.ALIGN_CENTER);
+        table.addCell(cellEquipo);
+
+        PdfPCell cellError = new PdfPCell(new Paragraph("ERROR",FontFactory.getFont("arial",size,Font.NORMAL,BaseColor.BLACK)));
+        cellError.setFixedHeight(15f);
+        cellError.setHorizontalAlignment(Element.ALIGN_CENTER);
+        table.addCell(cellError);
+
+        PdfPCell cellDesStand = new PdfPCell(new Paragraph("DES STAND",FontFactory.getFont("arial",size,Font.NORMAL,BaseColor.BLACK)));
+        cellDesStand.setFixedHeight(15f);
+        cellDesStand.setHorizontalAlignment(Element.ALIGN_CENTER);
+        table.addCell(cellDesStand);
+
+        PdfPCell cellIncertA = new PdfPCell(new Paragraph("INCERT A",FontFactory.getFont("arial",size,Font.NORMAL,BaseColor.BLACK)));
+        cellIncertA.setFixedHeight(15f);
+        cellIncertA.setHorizontalAlignment(Element.ALIGN_CENTER);
+        table.addCell(cellIncertA);
+
+        PdfPCell cellB1 = new PdfPCell(new Paragraph("INCERT B1",FontFactory.getFont("arial",size,Font.NORMAL,BaseColor.BLACK)));
+        cellB1.setFixedHeight(15f);
+        cellB1.setHorizontalAlignment(Element.ALIGN_CENTER);
+        table.addCell(cellB1);
+
+        PdfPCell cellB2 = new PdfPCell(new Paragraph("INCERT B2",FontFactory.getFont("arial",size,Font.NORMAL,BaseColor.BLACK)));
+        cellB2.setFixedHeight(15f);
+        cellB2.setHorizontalAlignment(Element.ALIGN_CENTER);
+        table.addCell(cellB2);
+
+        PdfPCell cellK = new PdfPCell(new Paragraph("K",FontFactory.getFont("arial",size,Font.NORMAL,BaseColor.BLACK)));
+        cellK.setFixedHeight(15f);
+        cellK.setHorizontalAlignment(Element.ALIGN_CENTER);
+        table.addCell(cellK);
+
+        PdfPCell cellConb = new PdfPCell(new Paragraph("INCERT CONB",FontFactory.getFont("arial",size,Font.NORMAL,BaseColor.BLACK)));
+        cellConb.setFixedHeight(15f);
+        cellConb.setHorizontalAlignment(Element.ALIGN_CENTER);
+        table.addCell(cellConb);
+
+        PdfPCell cellExpand= new PdfPCell(new Paragraph("INCERT EXPANDIDA",FontFactory.getFont("arial",size,Font.NORMAL,BaseColor.BLACK)));
+        cellExpand.setFixedHeight(15f);
+        cellExpand.setHorizontalAlignment(Element.ALIGN_CENTER);
+        table.addCell(cellExpand);
+
+        PdfPCell cellPattern = new PdfPCell(new Paragraph(String.valueOf(pattern),FontFactory.getFont("arial",size,Font.NORMAL,BaseColor.BLACK)));
+        cellPattern.setFixedHeight(15f);
+        cellPattern.setHorizontalAlignment(Element.ALIGN_CENTER);
+        table.addCell(cellPattern);
+
+        PdfPCell cellEquipment = new PdfPCell(new Paragraph(String.valueOf(equipment),FontFactory.getFont("arial",size,Font.NORMAL,BaseColor.BLACK)));
+        cellEquipment.setFixedHeight(15f);
+        cellEquipment.setHorizontalAlignment(Element.ALIGN_CENTER);
+        table.addCell(cellEquipment);
+
+        PdfPCell cellErr = new PdfPCell(new Paragraph(String.valueOf(error),FontFactory.getFont("arial",size,Font.NORMAL,BaseColor.BLACK)));
+        cellErr.setFixedHeight(15f);
+        cellErr.setHorizontalAlignment(Element.ALIGN_CENTER);
+        table.addCell(cellErr);
+
+        PdfPCell cellStandardDeviation = new PdfPCell(new Paragraph(String.valueOf(standardDesviation),FontFactory.getFont("arial",size,Font.NORMAL,BaseColor.BLACK)));
+        cellStandardDeviation.setFixedHeight(15f);
+        cellStandardDeviation.setHorizontalAlignment(Element.ALIGN_CENTER);
+        table.addCell(cellStandardDeviation);
 
         return table;
     }
