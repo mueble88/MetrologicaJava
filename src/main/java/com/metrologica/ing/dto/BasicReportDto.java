@@ -1,5 +1,6 @@
 package com.metrologica.ing.dto;
 
+import com.metrologica.ing.model.Measures;
 import com.sun.xml.bind.v2.model.core.ID;
 
 public class BasicReportDto {
@@ -29,11 +30,15 @@ public class BasicReportDto {
     private String certificate;
     private String temperature;
     private String humity;
+    private HumedInDto humedIn;
+    private TemInDto temIn;
+    private TemOutDto temOut;
+
 
     public BasicReportDto() {
     }
 
-    public BasicReportDto(long clientId, String nameE, String brand, String model, String serialNumber, String location, String plate, long receptionTimestamp, long calibrationTimestamp, String measure, String unity, String measureRange, String resolution, String nameT, String modelT, String serialNumberT, long calibrationTimestampT, String certificate, String temperature, String humity) {
+    public BasicReportDto(long clientId, String nameE, String brand, String model, String serialNumber, String location, String plate, long receptionTimestamp, long calibrationTimestamp, String measure, String unity, String measureRange, String resolution, String nameT, String modelT, String serialNumberT, long calibrationTimestampT, String certificate, String temperature, String humity, HumedInDto humedIn, TemInDto temIn, TemOutDto temOut) {
         this.clientId = clientId;
         this.nameE = nameE;
         this.brand = brand;
@@ -54,8 +59,10 @@ public class BasicReportDto {
         this.certificate = certificate;
         this.temperature = temperature;
         this.humity = humity;
+        this.humedIn = humedIn;
+        this.temIn = temIn;
+        this.temOut = temOut;
     }
-
 
     public long getClientId() {
         return clientId;
@@ -215,5 +222,29 @@ public class BasicReportDto {
 
     public void setHumity(String humity) {
         this.humity = humity;
+    }
+
+    public HumedInDto getHumedIn() {
+        return humedIn;
+    }
+
+    public void setHumedIn(HumedInDto humedIn) {
+        this.humedIn = humedIn;
+    }
+
+    public TemInDto getTemIn() {
+        return temIn;
+    }
+
+    public void setTemIn(TemInDto temIn) {
+        this.temIn = temIn;
+    }
+
+    public TemOutDto getTemOut() {
+        return temOut;
+    }
+
+    public void setTemOut(TemOutDto temOut) {
+        this.temOut = temOut;
     }
 }

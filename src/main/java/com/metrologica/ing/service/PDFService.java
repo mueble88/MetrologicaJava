@@ -3,8 +3,12 @@ package com.metrologica.ing.service;
 import com.itextpdf.text.*;
 import com.itextpdf.text.pdf.*;
 
+import com.metrologica.ing.dto.HumedInDto;
+import com.metrologica.ing.dto.TemInDto;
+import com.metrologica.ing.dto.TemOutDto;
 import com.metrologica.ing.model.Client;
 import com.metrologica.ing.model.EquipmentInfo;
+import com.metrologica.ing.model.Measures;
 import com.metrologica.ing.model.TraceInfo;
 import org.springframework.stereotype.Service;
 
@@ -16,7 +20,7 @@ import java.io.IOException;
 @Service
 public class PDFService {
 
-    public void savePDF(String nombreArchivo, Client client, EquipmentInfo equipmentInfo, TraceInfo traceInfo) {
+    public void savePDF(String nombreArchivo, Client client, EquipmentInfo equipmentInfo, TraceInfo traceInfo,HumedInDto humedIn, TemInDto temIn, TemOutDto temOut) {
         Document documento = new Document();
 
         try {
@@ -137,10 +141,43 @@ public class PDFService {
             documento.add(footer);
 
             // Tercera pagina 3da--------------------------------------------------------------->
-            Paragraph tituloHumedadIn = new Paragraph("Toma De Datos Humedad In\n\n",
-                    FontFactory.getFont("arial",11,Font.BOLD,BaseColor.BLACK)
+            documento.newPage();
+            Paragraph tituloHumedadIn = new Paragraph("TOMA DE DATOS HUMEDAD IN \n",
+                    FontFactory.getFont("arial",12,Font.NORMAL,BaseColor.BLACK)
             );
-            infCalibracion.setAlignment(Chunk.ALIGN_LEFT);
+            tituloHumedadIn.setAlignment(Chunk.ALIGN_CENTER);
+            PdfPTable tableHumedIn = tableHumedIn(humedIn);
+
+            documento.add(tituloHumedadIn);
+            documento.add(saltolineaTablas);
+            documento.add(tableHumedIn);
+
+
+            // Tercera pagina 4da--------------------------------------------------------------->
+            documento.newPage();
+            Paragraph tituloTemIn = new Paragraph("TOMA DE DATOS TEMPERATURA IN \n",
+                    FontFactory.getFont("arial",12,Font.NORMAL,BaseColor.BLACK)
+            );
+            tituloTemIn.setAlignment(Chunk.ALIGN_CENTER);
+            PdfPTable tableTemIn = tableTemIn(temIn);
+
+            documento.add(tituloTemIn);
+            documento.add(saltolineaTablas);
+            documento.add(tableTemIn);
+
+
+            // Tercera pagina 5da--------------------------------------------------------------->
+            documento.newPage();
+
+            Paragraph tituloTemOut = new Paragraph("TOMA DE DATOS TEMPERATURA OUT \n",
+                    FontFactory.getFont("arial",12,Font.NORMAL,BaseColor.BLACK)
+            );
+            tituloTemOut.setAlignment(Chunk.ALIGN_CENTER);
+            PdfPTable tableTemOut = tableTemOut(temOut);
+
+            documento.add(tituloTemOut);
+            documento.add(saltolineaTablas);
+            documento.add(tableTemOut);
 
 
             // Cierra el documento
@@ -151,7 +188,6 @@ public class PDFService {
             System.out.println("Error al crear el archivo PDF: " + e);
         }
     }
-
 
     public PdfPTable header() throws BadElementException, IOException {
         PdfPTable table = new PdfPTable(2);
@@ -707,4 +743,229 @@ public class PDFService {
 
         return table;
     }
+
+    public  PdfPTable tableHumedIn(HumedInDto humedIn) throws DocumentException {
+        PdfPTable table = new PdfPTable(5);
+        table.setWidths(new float[] {5, 20, 20, 20, 20});
+        int size = 9;
+
+        PdfPCell cellN = new PdfPCell(new Paragraph("N#",FontFactory.getFont("arial",size,Font.NORMAL,BaseColor.BLACK)));
+        cellN.setFixedHeight(13f);
+        cellN.setHorizontalAlignment(Element.ALIGN_CENTER);
+        table.addCell(cellN);
+
+        PdfPCell cellMedicion = new PdfPCell(new Paragraph("MEDICIÓN",FontFactory.getFont("arial",size,Font.NORMAL,BaseColor.BLACK)));
+        cellMedicion.setFixedHeight(13f);
+        cellMedicion.setHorizontalAlignment(Element.ALIGN_CENTER);
+        table.addCell(cellMedicion);
+
+        PdfPCell cellEquipo = new PdfPCell(new Paragraph("EQUIPO H%",FontFactory.getFont("arial",size,Font.NORMAL,BaseColor.BLACK)));
+        cellEquipo.setFixedHeight(13f);
+        cellEquipo.setHorizontalAlignment(Element.ALIGN_CENTER);
+        table.addCell(cellEquipo);
+
+        PdfPCell cellPatron = new PdfPCell(new Paragraph("PATRON",FontFactory.getFont("arial",size,Font.NORMAL,BaseColor.BLACK)));
+        cellPatron.setFixedHeight(13f);
+        cellPatron.setHorizontalAlignment(Element.ALIGN_CENTER);
+        table.addCell(cellPatron);
+
+        PdfPCell cellError = new PdfPCell(new Paragraph("ERROR",FontFactory.getFont("arial",size,Font.NORMAL,BaseColor.BLACK)));
+        cellError.setFixedHeight(13f);
+        cellError.setHorizontalAlignment(Element.ALIGN_CENTER);
+        table.addCell(cellError);
+
+        Measures measures = new Measures();
+        for (int i = 0; i < humedIn.getMeasures().length; i++){
+            measures = humedIn.getMeasures()[i];
+
+            PdfPCell cell1 = new PdfPCell(new Paragraph(String.valueOf(i+1),FontFactory.getFont("arial",size,Font.NORMAL,BaseColor.BLACK)));
+            cell1.setFixedHeight(14f);
+            cell1.setHorizontalAlignment(Element.ALIGN_CENTER);
+            table.addCell(cell1);
+
+            PdfPCell cellGrados = new PdfPCell(new Paragraph("%RH",FontFactory.getFont("arial",size,Font.NORMAL,BaseColor.BLACK)));
+            cellGrados.setFixedHeight(16f);
+            cellGrados.setHorizontalAlignment(Element.ALIGN_CENTER);
+            table.addCell(cellGrados);
+
+            PdfPCell cellEquipoOut = new PdfPCell(new Paragraph(String.valueOf(measures.getEquipoH()), FontFactory.getFont("arial",size,Font.NORMAL,BaseColor.BLACK)));
+            cellEquipoOut.setFixedHeight(14f);
+            cellEquipoOut.setHorizontalAlignment(Element.ALIGN_CENTER);
+            table.addCell(cellEquipoOut);
+
+            PdfPCell patron = new PdfPCell(new Paragraph(String.valueOf(measures.getPatron()), FontFactory.getFont("arial",size,Font.NORMAL,BaseColor.BLACK)));
+            patron.setFixedHeight(16f);
+            patron.setHorizontalAlignment(Element.ALIGN_CENTER);
+            table.addCell(patron);
+
+            PdfPCell error = new PdfPCell(new Paragraph(String.valueOf(measures.getError()), FontFactory.getFont("arial",size,Font.NORMAL,BaseColor.BLACK)));
+            error.setFixedHeight(16f);
+            error.setHorizontalAlignment(Element.ALIGN_CENTER);
+            table.addCell(error);
+
+        }
+
+        return table;
+    }
+
+
+    public PdfPTable tableTemIn(TemInDto temIn) throws DocumentException {
+
+        PdfPTable table = new PdfPTable(5);
+        table.setWidths(new float[] {5, 20, 20, 20, 20});
+        int size = 9;
+
+        PdfPCell cellN = new PdfPCell(new Paragraph("N#",FontFactory.getFont("arial",size,Font.NORMAL,BaseColor.BLACK)));
+        cellN.setFixedHeight(13f);
+        cellN.setHorizontalAlignment(Element.ALIGN_CENTER);
+        table.addCell(cellN);
+
+        PdfPCell cellMedicion = new PdfPCell(new Paragraph("MEDICIÓN",FontFactory.getFont("arial",size,Font.NORMAL,BaseColor.BLACK)));
+        cellMedicion.setFixedHeight(13f);
+        cellMedicion.setHorizontalAlignment(Element.ALIGN_CENTER);
+        table.addCell(cellMedicion);
+
+        PdfPCell cellEquipo = new PdfPCell(new Paragraph("EQUIPO IN",FontFactory.getFont("arial",size,Font.NORMAL,BaseColor.BLACK)));
+        cellEquipo.setFixedHeight(13f);
+        cellEquipo.setHorizontalAlignment(Element.ALIGN_CENTER);
+        table.addCell(cellEquipo);
+
+        PdfPCell cellPatron = new PdfPCell(new Paragraph("PATRON",FontFactory.getFont("arial",size,Font.NORMAL,BaseColor.BLACK)));
+        cellPatron.setFixedHeight(13f);
+        cellPatron.setHorizontalAlignment(Element.ALIGN_CENTER);
+        table.addCell(cellPatron);
+
+        PdfPCell cellError = new PdfPCell(new Paragraph("ERROR",FontFactory.getFont("arial",size,Font.NORMAL,BaseColor.BLACK)));
+        cellError.setFixedHeight(13f);
+        cellError.setHorizontalAlignment(Element.ALIGN_CENTER);
+        table.addCell(cellError);
+
+        Measures measures = new Measures();
+
+        for (int i = 0; i < temIn.getMeasures().length; i++){
+            measures = temIn.getMeasures()[i];
+
+            PdfPCell cell1 = new PdfPCell(new Paragraph(String.valueOf(i+1),FontFactory.getFont("arial",size,Font.NORMAL,BaseColor.BLACK)));
+            cell1.setFixedHeight(14f);
+            cell1.setHorizontalAlignment(Element.ALIGN_CENTER);
+            table.addCell(cell1);
+
+            PdfPCell cellGrados = new PdfPCell(new Paragraph("C°",FontFactory.getFont("arial",size,Font.NORMAL,BaseColor.BLACK)));
+            cellGrados.setFixedHeight(16f);
+            cellGrados.setHorizontalAlignment(Element.ALIGN_CENTER);
+            table.addCell(cellGrados);
+
+            PdfPCell cellEquipoOut = new PdfPCell(new Paragraph(String.valueOf(measures.getEquipoH()), FontFactory.getFont("arial",size,Font.NORMAL,BaseColor.BLACK)));
+            cellEquipoOut.setFixedHeight(14f);
+            cellEquipoOut.setHorizontalAlignment(Element.ALIGN_CENTER);
+            table.addCell(cellEquipoOut);
+
+            PdfPCell patron = new PdfPCell(new Paragraph(String.valueOf(measures.getPatron()), FontFactory.getFont("arial",size,Font.NORMAL,BaseColor.BLACK)));
+            patron.setFixedHeight(16f);
+            patron.setHorizontalAlignment(Element.ALIGN_CENTER);
+            table.addCell(patron);
+
+            PdfPCell error = new PdfPCell(new Paragraph(String.valueOf(measures.getError()), FontFactory.getFont("arial",size,Font.NORMAL,BaseColor.BLACK)));
+            error.setFixedHeight(16f);
+            error.setHorizontalAlignment(Element.ALIGN_CENTER);
+            table.addCell(error);
+
+        }
+
+        return table;
+    }
+
+    public PdfPTable tableTemOut(TemOutDto temOut) throws DocumentException {
+
+        PdfPTable table = new PdfPTable(5);
+        table.setWidths(new float[] {5, 20, 20, 20, 20});
+        int size = 9;
+
+        PdfPCell cellN = new PdfPCell(new Paragraph("N#",FontFactory.getFont("arial",size,Font.NORMAL,BaseColor.BLACK)));
+        cellN.setFixedHeight(13f);
+        cellN.setHorizontalAlignment(Element.ALIGN_CENTER);
+        table.addCell(cellN);
+
+        PdfPCell cellMedicion = new PdfPCell(new Paragraph("MEDICIÓN",FontFactory.getFont("arial",size,Font.NORMAL,BaseColor.BLACK)));
+        cellMedicion.setFixedHeight(13f);
+        cellMedicion.setHorizontalAlignment(Element.ALIGN_CENTER);
+        table.addCell(cellMedicion);
+
+        PdfPCell cellEquipo = new PdfPCell(new Paragraph("EQUIPO OUT",FontFactory.getFont("arial",size,Font.NORMAL,BaseColor.BLACK)));
+        cellEquipo.setFixedHeight(13f);
+        cellEquipo.setHorizontalAlignment(Element.ALIGN_CENTER);
+        table.addCell(cellEquipo);
+
+        PdfPCell cellPatron = new PdfPCell(new Paragraph("PATRON",FontFactory.getFont("arial",size,Font.NORMAL,BaseColor.BLACK)));
+        cellPatron.setFixedHeight(13f);
+        cellPatron.setHorizontalAlignment(Element.ALIGN_CENTER);
+        table.addCell(cellPatron);
+
+        PdfPCell cellError = new PdfPCell(new Paragraph("ERROR",FontFactory.getFont("arial",size,Font.NORMAL,BaseColor.BLACK)));
+        cellError.setFixedHeight(13f);
+        cellError.setHorizontalAlignment(Element.ALIGN_CENTER);
+        table.addCell(cellError);
+
+        Measures measures = new Measures();
+        float[] promedioEquipoH = new float[temOut.getMeasures().length];
+
+        for (int i = 0; i < temOut.getMeasures().length; i++){
+            measures = temOut.getMeasures()[i];
+            promedioEquipoH[i] = measures.getEquipoH();
+
+            PdfPCell cell1 = new PdfPCell(new Paragraph(String.valueOf(i+1),FontFactory.getFont("arial",size,Font.NORMAL,BaseColor.BLACK)));
+            cell1.setFixedHeight(14f);
+            cell1.setHorizontalAlignment(Element.ALIGN_CENTER);
+            table.addCell(cell1);
+
+            PdfPCell cellGrados = new PdfPCell(new Paragraph("C°",FontFactory.getFont("arial",size,Font.NORMAL,BaseColor.BLACK)));
+            cellGrados.setFixedHeight(16f);
+            cellGrados.setHorizontalAlignment(Element.ALIGN_CENTER);
+            table.addCell(cellGrados);
+
+            PdfPCell cellEquipoOut = new PdfPCell(new Paragraph(String.valueOf(measures.getEquipoH()), FontFactory.getFont("arial",size,Font.NORMAL,BaseColor.BLACK)));
+            cellEquipoOut.setFixedHeight(14f);
+            cellEquipoOut.setHorizontalAlignment(Element.ALIGN_CENTER);
+            table.addCell(cellEquipoOut);
+
+            PdfPCell patron = new PdfPCell(new Paragraph(String.valueOf(measures.getPatron()), FontFactory.getFont("arial",size,Font.NORMAL,BaseColor.BLACK)));
+            patron.setFixedHeight(16f);
+            patron.setHorizontalAlignment(Element.ALIGN_CENTER);
+            table.addCell(patron);
+
+            PdfPCell error = new PdfPCell(new Paragraph(String.valueOf(measures.getError()), FontFactory.getFont("arial",size,Font.NORMAL,BaseColor.BLACK)));
+            error.setFixedHeight(16f);
+            error.setHorizontalAlignment(Element.ALIGN_CENTER);
+            table.addCell(error);
+
+        }
+
+//        promedios
+        PdfPCell cellPromedios = new PdfPCell(new Paragraph("PROMEDIOS",FontFactory.getFont("arial",size,Font.NORMAL,BaseColor.BLACK)));
+        cellPromedios.setColspan(2);
+        cellPromedios.setFixedHeight(13f);
+        cellPromedios.setHorizontalAlignment(Element.ALIGN_CENTER);
+        table.addCell(cellPromedios);
+
+        PdfPCell cellEquipoPromedio = new PdfPCell(new Paragraph("",FontFactory.getFont("arial",size,Font.NORMAL,BaseColor.BLACK)));
+        cellEquipoPromedio.setFixedHeight(13f);
+        cellEquipoPromedio.setHorizontalAlignment(Element.ALIGN_CENTER);
+        table.addCell(cellEquipoPromedio);
+
+        PdfPCell cellPatronPromedio = new PdfPCell(new Paragraph("",FontFactory.getFont("arial",size,Font.NORMAL,BaseColor.BLACK)));
+        cellPatronPromedio.setFixedHeight(13f);
+        cellPatronPromedio.setHorizontalAlignment(Element.ALIGN_CENTER);
+        table.addCell(cellPatronPromedio);
+
+        PdfPCell cellErrorPromedio = new PdfPCell(new Paragraph("",FontFactory.getFont("arial",size,Font.NORMAL,BaseColor.BLACK)));
+        cellErrorPromedio.setFixedHeight(13f);
+        cellErrorPromedio.setHorizontalAlignment(Element.ALIGN_CENTER);
+        table.addCell(cellErrorPromedio);
+
+        return table;
+    }
+
+
 }
+
+
