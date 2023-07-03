@@ -156,6 +156,8 @@ public class PDFService {
             documento.add(saltolinea2);
             documento.add(footer);
 
+            Paragraph saltoDeLinea = new Paragraph();
+            saltoDeLinea.add("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n");
             // Tercera pagina 3da--------------------------------------------------------------->
             documento.newPage();
             Paragraph tituloHumedadIn = new Paragraph("TOMA DE DATOS HUMEDAD IN \n",
@@ -163,7 +165,8 @@ public class PDFService {
             );
             tituloHumedadIn.setAlignment(Chunk.ALIGN_CENTER);
             PdfPTable tableHumedIn = tableHumedIn(humedIn);
-            PdfPTable tableResultHumedIn =  tableResult(patternHumedIn, equipmentHumedIn, errorHumedIn, standardDeviationHumedIn);
+            PdfPTable tableResultHumedIn =  tableResult1(patternHumedIn, equipmentHumedIn, errorHumedIn, standardDeviationHumedIn);
+            PdfPTable tableResultHumedIn2 =  tableResult2(standardDeviationHumedIn);
 
             documento.add(tituloHumedadIn);
             documento.add(saltolineaTablas);
@@ -171,6 +174,8 @@ public class PDFService {
             documento.add(saltolineaTablas);
             documento.add(tableResultHumedIn);
             documento.add(saltolineaTablas);
+            documento.add(tableResultHumedIn2);
+            documento.add(saltoDeLinea);
             documento.add(footer);
 
             // Tercera pagina 4da--------------------------------------------------------------->
@@ -180,7 +185,8 @@ public class PDFService {
             );
             tituloTemIn.setAlignment(Chunk.ALIGN_CENTER);
             PdfPTable tableTemIn = tableTemIn(temIn);
-            PdfPTable tableResultTemIn =  tableResult(patternTemIn, equipmentTemIn, errorTemIn, standardDeviationTemIn);
+            PdfPTable tableResultTemIn =  tableResult1(patternTemIn, equipmentTemIn, errorTemIn, standardDeviationTemIn);
+            PdfPTable tableResultTemIn2 =  tableResult2(standardDeviationTemIn);
 
             documento.add(tituloTemIn);
             documento.add(saltolineaTablas);
@@ -188,6 +194,8 @@ public class PDFService {
             documento.add(saltolineaTablas);
             documento.add(tableResultTemIn);
             documento.add(saltolineaTablas);
+            documento.add(tableResultTemIn2);
+            documento.add(saltoDeLinea);
             documento.add(footer);
 
             // Tercera pagina 5da--------------------------------------------------------------->
@@ -198,7 +206,8 @@ public class PDFService {
             );
             tituloTemOut.setAlignment(Chunk.ALIGN_CENTER);
             PdfPTable tableTemOut = tableTemOut(temOut);
-            PdfPTable tableResultTemOut =  tableResult(patternTemOut, equipmentTemOut, errorTemOut, standardDeviationTemOut);
+            PdfPTable tableResultTemOut =  tableResult1(patternTemOut, equipmentTemOut, errorTemOut, standardDeviationTemOut);
+            PdfPTable tableResultTemOut2 =  tableResult2(standardDeviationTemOut);
 
             documento.add(tituloTemOut);
             documento.add(saltolineaTablas);
@@ -206,6 +215,8 @@ public class PDFService {
             documento.add(saltolineaTablas);
             documento.add(tableResultTemOut);
             documento.add(saltolineaTablas);
+            documento.add(tableResultTemOut2);
+            documento.add(saltoDeLinea);
             documento.add(footer);
 
             // Cierra el documento
@@ -1172,13 +1183,13 @@ public class PDFService {
         return table;
     }
 
-    public PdfPTable tableResult(double pattern,
+    public PdfPTable tableResult1(double pattern,
                                  double equipment,
                                  double error,
                                  double standardDesviation) throws DocumentException {
 
-        PdfPTable table = new PdfPTable(10);
-        table.setWidths(new float[] {10,10,10,10,10,10,10,10,10,20});
+        PdfPTable table = new PdfPTable(4);
+        table.setWidths(new float[] {30,30,30,30});
         int size = 8;
 
 
@@ -1201,6 +1212,42 @@ public class PDFService {
         cellDesStand.setFixedHeight(15f);
         cellDesStand.setHorizontalAlignment(Element.ALIGN_CENTER);
         table.addCell(cellDesStand);
+
+        PdfPCell cellPattern = new PdfPCell(new Paragraph(String.valueOf(pattern),FontFactory.getFont("arial",size,Font.NORMAL,BaseColor.BLACK)));
+        cellPattern.setFixedHeight(15f);
+        cellPattern.setHorizontalAlignment(Element.ALIGN_CENTER);
+        table.addCell(cellPattern);
+
+        PdfPCell cellEquipment = new PdfPCell(new Paragraph(String.valueOf(equipment),FontFactory.getFont("arial",size,Font.NORMAL,BaseColor.BLACK)));
+        cellEquipment.setFixedHeight(15f);
+        cellEquipment.setHorizontalAlignment(Element.ALIGN_CENTER);
+        table.addCell(cellEquipment);
+
+        PdfPCell cellErr = new PdfPCell(new Paragraph(String.valueOf(error),FontFactory.getFont("arial",size,Font.NORMAL,BaseColor.BLACK)));
+        cellErr.setFixedHeight(15f);
+        cellErr.setHorizontalAlignment(Element.ALIGN_CENTER);
+        table.addCell(cellErr);
+
+        PdfPCell cellStandardDeviation = new PdfPCell(new Paragraph(String.valueOf(standardDesviation),FontFactory.getFont("arial",size,Font.NORMAL,BaseColor.BLACK)));
+        cellStandardDeviation.setFixedHeight(15f);
+        cellStandardDeviation.setHorizontalAlignment(Element.ALIGN_CENTER);
+        table.addCell(cellStandardDeviation);
+
+        return table;
+    }
+
+    public PdfPTable tableResult2(double standardDesviation) throws DocumentException {
+
+        PdfPTable table = new PdfPTable(6);
+        table.setWidths(new float[] {30,30,30,30,30,30});
+        int size = 8;
+
+        double incertA = Utils.calculateIncertA(standardDesviation);
+        double incertB1 = Utils.calculateIncertB1();
+        double incertB2 = Utils.calculateIncertB2();
+        double k = Utils.calculateK();
+        double incetConb = Utils.calculateIncertConb(incertA, incertB1, incertB2);
+        double incetExpand = Utils.calculateIncetExpandida(k,incetConb);
 
         PdfPCell cellIncertA = new PdfPCell(new Paragraph("INCERT A",FontFactory.getFont("arial",size,Font.NORMAL,BaseColor.BLACK)));
         cellIncertA.setFixedHeight(15f);
@@ -1232,25 +1279,35 @@ public class PDFService {
         cellExpand.setHorizontalAlignment(Element.ALIGN_CENTER);
         table.addCell(cellExpand);
 
-        PdfPCell cellPattern = new PdfPCell(new Paragraph(String.valueOf(pattern),FontFactory.getFont("arial",size,Font.NORMAL,BaseColor.BLACK)));
-        cellPattern.setFixedHeight(15f);
-        cellPattern.setHorizontalAlignment(Element.ALIGN_CENTER);
-        table.addCell(cellPattern);
+        PdfPCell cellIncert = new PdfPCell(new Paragraph(String.valueOf(incertA),FontFactory.getFont("arial",size,Font.NORMAL,BaseColor.BLACK)));
+        cellIncert.setFixedHeight(15f);
+        cellIncert.setHorizontalAlignment(Element.ALIGN_CENTER);
+        table.addCell(cellIncert);
 
-        PdfPCell cellEquipment = new PdfPCell(new Paragraph(String.valueOf(equipment),FontFactory.getFont("arial",size,Font.NORMAL,BaseColor.BLACK)));
-        cellEquipment.setFixedHeight(15f);
-        cellEquipment.setHorizontalAlignment(Element.ALIGN_CENTER);
-        table.addCell(cellEquipment);
+        PdfPCell cellIncertB1 = new PdfPCell(new Paragraph(String.valueOf(incertB1),FontFactory.getFont("arial",size,Font.NORMAL,BaseColor.BLACK)));
+        cellIncertB1.setFixedHeight(15f);
+        cellIncertB1.setHorizontalAlignment(Element.ALIGN_CENTER);
+        table.addCell(cellIncertB1);
 
-        PdfPCell cellErr = new PdfPCell(new Paragraph(String.valueOf(error),FontFactory.getFont("arial",size,Font.NORMAL,BaseColor.BLACK)));
-        cellErr.setFixedHeight(15f);
-        cellErr.setHorizontalAlignment(Element.ALIGN_CENTER);
-        table.addCell(cellErr);
+        PdfPCell cellIncertB2 = new PdfPCell(new Paragraph(String.valueOf(incertB2),FontFactory.getFont("arial",size,Font.NORMAL,BaseColor.BLACK)));
+        cellIncertB2.setFixedHeight(15f);
+        cellIncertB2.setHorizontalAlignment(Element.ALIGN_CENTER);
+        table.addCell(cellIncertB2);
 
-        PdfPCell cellStandardDeviation = new PdfPCell(new Paragraph(String.valueOf(standardDesviation),FontFactory.getFont("arial",size,Font.NORMAL,BaseColor.BLACK)));
-        cellStandardDeviation.setFixedHeight(15f);
-        cellStandardDeviation.setHorizontalAlignment(Element.ALIGN_CENTER);
-        table.addCell(cellStandardDeviation);
+        PdfPCell cellk = new PdfPCell(new Paragraph(String.valueOf(k),FontFactory.getFont("arial",size,Font.NORMAL,BaseColor.BLACK)));
+        cellk.setFixedHeight(15f);
+        cellk.setHorizontalAlignment(Element.ALIGN_CENTER);
+        table.addCell(cellk);
+
+        PdfPCell cellIncetConb = new PdfPCell(new Paragraph(String.valueOf(incetConb),FontFactory.getFont("arial",size,Font.NORMAL,BaseColor.BLACK)));
+        cellIncetConb.setFixedHeight(15f);
+        cellIncetConb.setHorizontalAlignment(Element.ALIGN_CENTER);
+        table.addCell(cellIncetConb);
+
+        PdfPCell cellIncetExp = new PdfPCell(new Paragraph(String.valueOf(incetExpand),FontFactory.getFont("arial",size,Font.NORMAL,BaseColor.BLACK)));
+        cellIncetExp.setFixedHeight(15f);
+        cellIncetExp.setHorizontalAlignment(Element.ALIGN_CENTER);
+        table.addCell(cellIncetExp);
 
         return table;
     }
