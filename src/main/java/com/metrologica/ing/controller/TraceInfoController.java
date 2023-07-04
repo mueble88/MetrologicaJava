@@ -16,8 +16,8 @@ public class TraceInfoController {
     @Autowired
     private TraceInfoService traceInfoService;
 
-    public TraceInfo create(TraceInfo traceInfo) {
-        return traceInfoService.create(traceInfo);
+    public TraceInfo save(TraceInfo traceInfo) {
+        return traceInfoService.save(traceInfo);
     }
 
 }

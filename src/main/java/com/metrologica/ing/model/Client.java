@@ -18,6 +18,9 @@ public class Client {
     private String name;
 
     @Column(nullable = false)
+    private String phone;
+
+    @Column(nullable = false)
     private String address;
 
     @Column(nullable = false)
@@ -33,9 +36,10 @@ public class Client {
 
     public Client(){}
 
-    public Client(long id, String name, String address, String email, String nit, City city) {
+    public Client(long id, String name, String phone, String address, String email, String nit, City city) {
         this.id = id;
         this.name = name;
+        this.phone = phone;
         this.address = address;
         this.email = email;
         this.nit = nit;
@@ -56,6 +60,14 @@ public class Client {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public String getPhone() {
+        return phone;
+    }
+
+    public void setPhone(String phone) {
+        this.phone = phone;
     }
 
     public String getAddress() {

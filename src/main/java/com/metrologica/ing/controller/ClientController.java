@@ -53,6 +53,7 @@ public class ClientController {
         Client oneClient = new Client();
         oneClient.setId(id);
         oneClient.setName(client.getName());
+        oneClient.setPhone(client.getPhone());
         oneClient.setAddress(client.getAddress());
         oneClient.setEmail(client.getEmail());
         oneClient.setNit(client.getNit());
@@ -60,6 +61,7 @@ public class ClientController {
 
         long idClient = oneClient.getId();
         String name = client.getName();
+        String phone = client.getPhone();
         String address = client.getAddress();
         String email = client.getEmail();
         String nit = client.getNit();

@@ -65,7 +65,7 @@ public class BasicReportController {
         equipmentInfo.setUnity(basicReportDto.getUnity());
         equipmentInfo.setMeasureRange(basicReportDto.getMeasureRange());
         equipmentInfo.setResolution(basicReportDto.getResolution());
-//        equipmentInfoService.create(equipmentInfo);
+        equipmentInfoService.save(equipmentInfo);
 
         traceInfo.setName(basicReportDto.getNameT());
         traceInfo.setModel(basicReportDto.getModelT());
@@ -74,7 +74,7 @@ public class BasicReportController {
         traceInfo.setCertificate(basicReportDto.getCertificate());
         traceInfo.setTemperature(basicReportDto.getTemperature());
         traceInfo.setHumity(basicReportDto.getHumity());
-//        traceInfoService.create(traceInfo);
+        traceInfoService.save(traceInfo);
 
         HumedInDto humedIn = new HumedInDto();
         humedIn.setMeasures(basicReportDto.getHumedIn().getMeasures());
@@ -88,10 +88,10 @@ public class BasicReportController {
         basicReport.setTraceInfo(traceInfo);
         basicReport.setEquipmentInfo(equipmentInfo);
         basicReport.setClient(client);
-//        basicReportService.save(basicReport);
+        basicReportService.save(basicReport);
 
-        String nombreArchivo = "archivoPDF"+client.getName()+".pdf";
-        pdfService.savePDF( nombreArchivo, client, equipmentInfo, traceInfo, humedIn, temIn, temOut);
+        String nameFile = "archivoPDF"+client.getName()+".pdf";
+        pdfService.savePDF( nameFile, client, equipmentInfo, traceInfo, humedIn, temIn, temOut);
 
         return new ResponseEntity<BasicReport>(basicReport, HttpStatus.OK);
 

@@ -5,11 +5,6 @@ import com.sun.xml.bind.v2.model.core.ID;
 
 public class BasicReportDto {
 
-//    private String nameClient;
-//    private String address;
-//    private String email;
-//    private String nit;
-
     private long clientId;
     private String nameE;
     private String brand;

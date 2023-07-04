@@ -3,16 +3,16 @@ package com.metrologica.ing.model;
 public class Measures {
 
     private double error;
-    private double patron;
-    private double equipoH;
+    private double pattern;
+    private double equipmentH;
 
     public Measures() {
     }
 
-    public Measures(double error, double patron, double equipoH) {
+    public Measures(double error, double pattern, double equipmentH) {
         this.error = error;
-        this.patron = patron;
-        this.equipoH = equipoH;
+        this.pattern = pattern;
+        this.equipmentH = equipmentH;
     }
 
     public double getError() {
@@ -23,19 +23,19 @@ public class Measures {
         this.error = error;
     }
 
-    public double getPatron() {
-        return patron;
+    public double getPattern() {
+        return pattern;
     }
 
-    public void setPatron(double patron) {
-        this.patron = patron;
+    public void setPattern(double pattern) {
+        this.pattern = pattern;
     }
 
-    public double getEquipoH() {
-        return equipoH;
+    public double getEquipmentH() {
+        return equipmentH;
     }
 
-    public void setEquipoH(double equipoH) {
-        this.equipoH = equipoH;
+    public void setEquipmentH(double equipmentH) {
+        this.equipmentH = equipmentH;
     }
 }

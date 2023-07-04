@@ -14,7 +14,7 @@ public class EquipmentInfoController {
     @Autowired
     private EquipmentInfoService equipmentInfoService;
 
-    public EquipmentInfo create(EquipmentInfo equipmentInfo) {
-        return equipmentInfoService.create(equipmentInfo);
+    public EquipmentInfo save(EquipmentInfo equipmentInfo) {
+        return equipmentInfoService.save(equipmentInfo);
     }
 }

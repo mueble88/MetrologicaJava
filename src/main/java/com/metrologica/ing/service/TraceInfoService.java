@@ -12,7 +12,7 @@ public class TraceInfoService {
     @Autowired
     private TranceInfoRepository tranceInfoRepository;
 
-    public TraceInfo create(TraceInfo traceInfo) {
+    public TraceInfo save(TraceInfo traceInfo) {
         return tranceInfoRepository.save(traceInfo);
     }
 }

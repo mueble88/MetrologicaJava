@@ -12,6 +12,8 @@ public class ClientDto {
 
     private String name;
 
+    private String phone;
+
     private String address;
 
     private String email;
@@ -22,9 +24,10 @@ public class ClientDto {
 
     public ClientDto(){}
 
-    public ClientDto(long id, String name, String address, String email, String nit, City city) {
+    public ClientDto(long id, String name,String phone, String address, String email, String nit, City city) {
         this.id = id;
         this.name = name;
+        this.phone = phone;
         this.address = address;
         this.email = email;
         this.nit = nit;
@@ -45,6 +48,14 @@ public class ClientDto {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public String getPhone() {
+        return phone;
+    }
+
+    public void setPhone(String phone) {
+        this.phone = phone;
     }
 
     public String getAddress() {
@@ -83,6 +94,7 @@ public class ClientDto {
         ClientDto clientDto= new ClientDto();
         clientDto.setId(client.getId());
         clientDto.setName(client.getName());
+        clientDto.setPhone(client.getPhone());
         clientDto.setAddress(client.getAddress());
         clientDto.setEmail(client.getEmail());
         clientDto.setNit(client.getNit());

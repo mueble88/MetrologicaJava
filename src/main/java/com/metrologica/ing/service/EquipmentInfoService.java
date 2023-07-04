@@ -11,7 +11,7 @@ public class EquipmentInfoService {
     @Autowired
     private EquipmentInfoRepository equipmentInfoRepository;
 
-    public EquipmentInfo create(EquipmentInfo equipmentInfo) {
+    public EquipmentInfo save(EquipmentInfo equipmentInfo) {
         return equipmentInfoRepository.save(equipmentInfo);
     }
 
