@@ -15,8 +15,6 @@ public interface PictureRepository extends JpaRepository<Picture, Long> {
 
     List<Picture> findById(long id);
 
-//    List<Picture>findByName(String name);
-
     @Modifying
     @Transactional
     @Query("UPDATE Picture picture SET picture.image = :image, picture.type = :type WHERE picture.id = :id")

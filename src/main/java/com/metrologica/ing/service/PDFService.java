@@ -3,19 +3,25 @@ package com.metrologica.ing.service;
 import com.itextpdf.text.*;
 import com.itextpdf.text.pdf.*;
 
-import com.itextpdf.text.pdf.codec.Base64;
 import com.metrologica.ing.dto.HumedInDto;
 import com.metrologica.ing.dto.TemInDto;
 import com.metrologica.ing.dto.TemOutDto;
 import com.metrologica.ing.model.*;
-import com.metrologica.ing.repository.ReportFilesRepository;
+import com.metrologica.ing.repository.ReportFileRepository;
 import com.metrologica.ing.util.Utils;
 import org.apache.tomcat.util.http.fileupload.ByteArrayOutputStream;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Base64Utils;
+import org.springframework.util.ResourceUtils;
 
+import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.util.List;
+import java.util.UUID;
 
 @Service
 public class PDFService {
@@ -33,13 +39,16 @@ public class PDFService {
     double errorTemOut= 0;
     double standardDeviationTemOut = 0;
 
+    @Value("classpath:data/resource-data.txt")
+    Resource resourceFile;
+
     @Autowired
-    private ReportFilesRepository reportFilesRepository;
+    private ReportFileRepository reportFilesRepository;
 
     public void savePDF(String nameFile, Client client, EquipmentInfo equipmentInfo, TraceInfo traceInfo,HumedInDto humedIn, TemInDto temIn, TemOutDto temOut) {
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         Document document = new Document();
-        ReportFiles reportFiles = new ReportFiles();
+        ReportFile reportFile = new ReportFile();
 
         try {
             PdfWriter.getInstance(document, outputStream);
@@ -70,7 +79,10 @@ public class PDFService {
             lineBreak.add("\n\n");
             document.add(lineBreak);
 
-            Image imgNote = Image.getInstance("C:/Proyectos/ing/uploads/parrafo.png");
+//            Image imgNote = Image.getInstance("C:/Proyectos/ing/uploads/parrafo.png");
+            File file = ResourceUtils.getFile("classpath:images/parrafo.png");
+            String content = new String(Files.readAllBytes(file.toPath()));
+            Image imgNote = Image.getInstance(content);
             imgNote.scaleToFit(500, 100);
             imgNote.setAlignment(Chunk.ALIGN_CENTER);
             document.add(imgNote);
@@ -212,19 +224,33 @@ public class PDFService {
 
             // Cierra el documento
             document.close();
+
             byte[] pdfBytes = outputStream.toByteArray();
             String encoded = Base64Utils.encodeToString(pdfBytes);
-            reportFiles.setFile(encoded);
-//            reportFiles.setReportId(idBasicReport);
-            reportFiles.setFilename(nameFile);
-            reportFilesRepository.save(reportFiles);
+            UUID uuid = UUID.randomUUID();
+
+            reportFile.setId(uuid);
+            reportFile.setFile(encoded);
+            reportFile.setFilename(nameFile);
+            reportFilesRepository.save(reportFile);
 
             System.out.println("Archivo PDF creado exitosamente.");
-            System.out.println(reportFiles);
+            System.out.println(reportFile.getFile());
         } catch (Exception e) {
             System.out.println("Error al crear el archivo PDF: " + e);
         }
     }
+
+    public ReportFile getReportFile(UUID id){
+        return reportFilesRepository.findById(id).get();
+    }
+
+    public List<ReportFile> getAllReportFile(){
+        List<ReportFile> pdfs = reportFilesRepository.findAll();
+        System.out.println("lista de pdf:"+pdfs);
+        return pdfs;
+    }
+
 
     public PdfPTable header() throws BadElementException, IOException {
         PdfPTable table = new PdfPTable(2);
@@ -238,13 +264,19 @@ public class PDFService {
         title.setBorder(0);
         table.addCell(title);
 
-        Image logo1 = Image.getInstance("C:/Proyectos/ing/uploads/LogoIngM1.png");
+
+        File file1 = ResourceUtils.getFile("classpath:images/LogoIngM1.png");
+        String content1 = new String(Files.readAllBytes(file1.toPath()));
+        Image logo1 = Image.getInstance(content1);
+//        Image logo1 = Image.getInstance("C:/Proyectos/ing/uploads/LogoIngM1.png");
         PdfPCell img1 = new PdfPCell(logo1);
         img1.setHorizontalAlignment(Element.ALIGN_LEFT);
         img1.setFixedHeight(10f);
         img1.setBorder(0);
 
-        Image logo2 = Image.getInstance("C:/Proyectos/ing/uploads/LogoIngM2.png");
+        File file2 = ResourceUtils.getFile("classpath:images/LogoIngM2.png");
+        String content2 = new String(Files.readAllBytes(file2.toPath()));
+        Image logo2 = Image.getInstance(content2);
         PdfPCell img2 = new PdfPCell(logo2);
         img2.setHorizontalAlignment(Element.ALIGN_RIGHT);
         img2.setFixedHeight(10f);
@@ -486,14 +518,20 @@ public class PDFService {
         title2.setBorder(0);
         title2.setPaddingBottom(4);
 
-        Image firma1 = Image.getInstance("C:/Proyectos/ing/uploads/firma.png");
+        File file1 = ResourceUtils.getFile("classpath:images/firma.png");
+        String content1 = new String(Files.readAllBytes(file1.toPath()));
+        Image firma1 = Image.getInstance(content1);
+//        Image firma1 = Image.getInstance("C:/Proyectos/ing/uploads/firma.png");
         PdfPCell img1 = new PdfPCell(firma1);
         img1.setHorizontalAlignment(Element.ALIGN_LEFT);
         img1.setPaddingLeft(20);
         img1.setFixedHeight(32f);
         img1.setBorder(0);
 
-        Image firma2 = Image.getInstance("C:/Proyectos/ing/uploads/firma2.png");
+        File file2 = ResourceUtils.getFile("classpath:images/firma2.png");
+        String content2 = new String(Files.readAllBytes(file2.toPath()));
+        Image firma2 = Image.getInstance(content2);
+//        Image firma2 = Image.getInstance("C:/Proyectos/ing/uploads/firma2.png");
         PdfPCell img2 = new PdfPCell(firma2);
         img2.setHorizontalAlignment(Element.ALIGN_LEFT);
         img2.setPaddingLeft(20);

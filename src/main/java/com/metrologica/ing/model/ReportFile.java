@@ -4,13 +4,12 @@ import org.hibernate.annotations.GenericGenerator;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import javax.persistence.*;
-import java.sql.Blob;
 import java.util.UUID;
 
 @Entity
 @Table(name="report_files")
 @EntityListeners(AuditingEntityListener.class)
-public class ReportFiles {
+public class ReportFile {
 
     @Id
     @GeneratedValue(generator = "uuid")
@@ -27,10 +26,10 @@ public class ReportFiles {
     private String filename;
 
 
-    public ReportFiles() {
+    public ReportFile() {
     }
 
-    public ReportFiles(UUID id, long reportId, String file, String filename) {
+    public ReportFile(UUID id, long reportId, String file, String filename) {
         this.id = id;
         this.reportId = reportId;
         this.file = file;

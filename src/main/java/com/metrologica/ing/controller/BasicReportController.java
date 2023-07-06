@@ -2,28 +2,20 @@ package com.metrologica.ing.controller;
 
 
 import com.itextpdf.text.*;
-import com.itextpdf.text.pdf.PdfPTable;
-import com.itextpdf.text.pdf.PdfWriter;
 import com.metrologica.ing.dto.*;
 import com.metrologica.ing.model.*;
 import com.metrologica.ing.service.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 
 import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.Part;
-import java.awt.*;
-import java.awt.Font;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api")
@@ -65,7 +57,7 @@ public class BasicReportController {
         equipmentInfo.setUnity(basicReportDto.getUnity());
         equipmentInfo.setMeasureRange(basicReportDto.getMeasureRange());
         equipmentInfo.setResolution(basicReportDto.getResolution());
-        equipmentInfoService.save(equipmentInfo);
+//        equipmentInfoService.save(equipmentInfo);
 
         traceInfo.setName(basicReportDto.getNameT());
         traceInfo.setModel(basicReportDto.getModelT());
@@ -74,7 +66,7 @@ public class BasicReportController {
         traceInfo.setCertificate(basicReportDto.getCertificate());
         traceInfo.setTemperature(basicReportDto.getTemperature());
         traceInfo.setHumity(basicReportDto.getHumity());
-        traceInfoService.save(traceInfo);
+//        traceInfoService.save(traceInfo);
 
         HumedInDto humedIn = new HumedInDto();
         humedIn.setMeasures(basicReportDto.getHumedIn().getMeasures());
@@ -87,7 +79,7 @@ public class BasicReportController {
         basicReport.setTraceInfo(traceInfo);
         basicReport.setEquipmentInfo(equipmentInfo);
         basicReport.setClient(client);
-        basicReportService.save(basicReport);
+//        basicReportService.save(basicReport);
 
         String nameFile = "archivoPDF"+client.getName()+".pdf";
         pdfService.savePDF(nameFile, client, equipmentInfo, traceInfo, humedIn, temIn, temOut);
@@ -106,6 +98,24 @@ public class BasicReportController {
         //Page<Client> clientWithPagination = clientService.findClientWithPaginationAndSorting(offset, pageSize, field, sort);
         //return new APIResponseDto<>(clientWithPagination.getSize(), clientWithPagination);
         return basicReportService.findAll();
+    }
+
+    @GetMapping("/reportFiles")
+    private ResponseEntity<List<ReportFile>> allReportFiles(){
+        List<ReportFile> pdfs = pdfService.getAllReportFile();
+        return ResponseEntity
+                .ok()
+                .body(pdfs);
+    }
+
+    @GetMapping("/reportFile/{id}")
+    private ResponseEntity<String> getReportFile(@PathVariable UUID id) {
+        ReportFile reportFile = pdfService.getReportFile(id);
+//        String encoded = Base64Utils.encodeToString(picture.getImage());
+//        return ResponseEntity.ok()
+//                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + picture.getName() + "\"")
+//                .body(encoded);
+        return ResponseEntity.status(HttpStatus.OK).contentType(MediaType.valueOf("")).body(reportFile.getFile());
     }
 
 }
