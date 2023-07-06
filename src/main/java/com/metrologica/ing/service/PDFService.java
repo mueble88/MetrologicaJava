@@ -3,20 +3,19 @@ package com.metrologica.ing.service;
 import com.itextpdf.text.*;
 import com.itextpdf.text.pdf.*;
 
+import com.itextpdf.text.pdf.codec.Base64;
 import com.metrologica.ing.dto.HumedInDto;
 import com.metrologica.ing.dto.TemInDto;
 import com.metrologica.ing.dto.TemOutDto;
-import com.metrologica.ing.model.Client;
-import com.metrologica.ing.model.EquipmentInfo;
-import com.metrologica.ing.model.Measures;
-import com.metrologica.ing.model.TraceInfo;
+import com.metrologica.ing.model.*;
+import com.metrologica.ing.repository.ReportFilesRepository;
 import com.metrologica.ing.util.Utils;
+import org.apache.tomcat.util.http.fileupload.ByteArrayOutputStream;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.Base64Utils;
 
-
-import java.io.FileOutputStream;
 import java.io.IOException;
-
 
 @Service
 public class PDFService {
@@ -34,12 +33,16 @@ public class PDFService {
     double errorTemOut= 0;
     double standardDeviationTemOut = 0;
 
-    public void savePDF(String nombreArchivo, Client client, EquipmentInfo equipmentInfo, TraceInfo traceInfo,HumedInDto humedIn, TemInDto temIn, TemOutDto temOut) {
+    @Autowired
+    private ReportFilesRepository reportFilesRepository;
+
+    public void savePDF(String nameFile, Client client, EquipmentInfo equipmentInfo, TraceInfo traceInfo,HumedInDto humedIn, TemInDto temIn, TemOutDto temOut) {
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         Document document = new Document();
+        ReportFiles reportFiles = new ReportFiles();
 
         try {
-            // Creates a PdfWriter object to write the content to the file.
-            PdfWriter.getInstance(document, new FileOutputStream(nombreArchivo));
+            PdfWriter.getInstance(document, outputStream);
 
             // Opens the document to add content and margin is created.
             document.open();
@@ -71,7 +74,7 @@ public class PDFService {
             imgNote.scaleToFit(500, 100);
             imgNote.setAlignment(Chunk.ALIGN_CENTER);
             document.add(imgNote);
-
+            document.add(lineBreak);
             PdfPTable firmas = firma();
             document.add(firmas);
 
@@ -209,8 +212,15 @@ public class PDFService {
 
             // Cierra el documento
             document.close();
+            byte[] pdfBytes = outputStream.toByteArray();
+            String encoded = Base64Utils.encodeToString(pdfBytes);
+            reportFiles.setFile(encoded);
+//            reportFiles.setReportId(idBasicReport);
+            reportFiles.setFilename(nameFile);
+            reportFilesRepository.save(reportFiles);
 
             System.out.println("Archivo PDF creado exitosamente.");
+            System.out.println(reportFiles);
         } catch (Exception e) {
             System.out.println("Error al crear el archivo PDF: " + e);
         }
@@ -276,7 +286,7 @@ public class PDFService {
 
         PdfPCell colum2 = new PdfPCell(new Paragraph(
                 client.getName()+"\n"
-                        +client.getCity()+"\n"
+                        +client.getCity().getName()+"\n"
                         +client.getAddress(),
                 FontFactory.getFont("arial",size,Font.NORMAL,BaseColor.BLACK))
         );

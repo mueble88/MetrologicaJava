@@ -83,7 +83,6 @@ public class BasicReportController {
         TemOutDto temOut = new TemOutDto();
         temOut.setMeasures(basicReportDto.getTemOut().getMeasures());
 
-
         BasicReport basicReport = new BasicReport();
         basicReport.setTraceInfo(traceInfo);
         basicReport.setEquipmentInfo(equipmentInfo);
@@ -91,7 +90,7 @@ public class BasicReportController {
         basicReportService.save(basicReport);
 
         String nameFile = "archivoPDF"+client.getName()+".pdf";
-        pdfService.savePDF( nameFile, client, equipmentInfo, traceInfo, humedIn, temIn, temOut);
+        pdfService.savePDF(nameFile, client, equipmentInfo, traceInfo, humedIn, temIn, temOut);
 
         return new ResponseEntity<BasicReport>(basicReport, HttpStatus.OK);
 
