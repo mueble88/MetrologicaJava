@@ -13,13 +13,13 @@ import org.apache.tomcat.util.http.fileupload.ByteArrayOutputStream;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
+import org.springframework.core.io.ResourceLoader;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Base64Utils;
-import org.springframework.util.ResourceUtils;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
+import java.io.InputStream;
 import java.util.List;
 import java.util.UUID;
 
@@ -39,11 +39,15 @@ public class PDFService {
     double errorTemOut= 0;
     double standardDeviationTemOut = 0;
 
-    @Value("classpath:data/resource-data.txt")
+    @Value("classpath:resources/images/LogoIngM1.png")
     Resource resourceFile;
 
     @Autowired
+    private ResourceLoader resourceLoader;
+
+    @Autowired
     private ReportFileRepository reportFilesRepository;
+
 
     public void savePDF(String nameFile, Client client, EquipmentInfo equipmentInfo, TraceInfo traceInfo,HumedInDto humedIn, TemInDto temIn, TemOutDto temOut) {
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
@@ -79,13 +83,11 @@ public class PDFService {
             lineBreak.add("\n\n");
             document.add(lineBreak);
 
-//            Image imgNote = Image.getInstance("C:/Proyectos/ing/uploads/parrafo.png");
-            File file = ResourceUtils.getFile("classpath:images/parrafo.png");
-            String content = new String(Files.readAllBytes(file.toPath()));
-            Image imgNote = Image.getInstance(content);
-            imgNote.scaleToFit(500, 100);
-            imgNote.setAlignment(Chunk.ALIGN_CENTER);
-            document.add(imgNote);
+            String nameImg =  "parrafo.png";
+            Image paragraph = loadFiel(nameImg);
+            paragraph.scaleToFit(500, 100);
+            paragraph.setAlignment(Chunk.ALIGN_CENTER);
+            document.add(paragraph);
             document.add(lineBreak);
             PdfPTable firmas = firma();
             document.add(firmas);
@@ -251,6 +253,13 @@ public class PDFService {
         return pdfs;
     }
 
+    public Image loadFiel(String nameImg) throws IOException, BadElementException {
+        Resource resource = resourceLoader.getResource("classpath:images/"+nameImg);
+        File file = resource.getFile();
+        Image image = Image.getInstance(String.valueOf(file));
+
+        return image;
+    }
 
     public PdfPTable header() throws BadElementException, IOException {
         PdfPTable table = new PdfPTable(2);
@@ -264,19 +273,15 @@ public class PDFService {
         title.setBorder(0);
         table.addCell(title);
 
-
-        File file1 = ResourceUtils.getFile("classpath:images/LogoIngM1.png");
-        String content1 = new String(Files.readAllBytes(file1.toPath()));
-        Image logo1 = Image.getInstance(content1);
-//        Image logo1 = Image.getInstance("C:/Proyectos/ing/uploads/LogoIngM1.png");
+        String nameImg1 =  "LogoIngM1.png";
+        Image logo1 = loadFiel(nameImg1);
         PdfPCell img1 = new PdfPCell(logo1);
-        img1.setHorizontalAlignment(Element.ALIGN_LEFT);
+        img1.setHorizontalAlignment(Element.ALIGN_RIGHT);
         img1.setFixedHeight(10f);
         img1.setBorder(0);
 
-        File file2 = ResourceUtils.getFile("classpath:images/LogoIngM2.png");
-        String content2 = new String(Files.readAllBytes(file2.toPath()));
-        Image logo2 = Image.getInstance(content2);
+        String nameImg2 =  "LogoIngM2.png";
+        Image logo2 = loadFiel(nameImg2);
         PdfPCell img2 = new PdfPCell(logo2);
         img2.setHorizontalAlignment(Element.ALIGN_RIGHT);
         img2.setFixedHeight(10f);
@@ -492,7 +497,6 @@ public class PDFService {
     public PdfPTable firma() throws DocumentException, IOException {
         PdfPTable table = new PdfPTable(2);
         table.setWidths(new float[] {92, 92});
-//        table.setWidthPercentage(80);
         table.getDefaultCell().setBorder(0);
         table.setHorizontalAlignment(Element.ALIGN_CENTER);
 
@@ -518,20 +522,16 @@ public class PDFService {
         title2.setBorder(0);
         title2.setPaddingBottom(4);
 
-        File file1 = ResourceUtils.getFile("classpath:images/firma.png");
-        String content1 = new String(Files.readAllBytes(file1.toPath()));
-        Image firma1 = Image.getInstance(content1);
-//        Image firma1 = Image.getInstance("C:/Proyectos/ing/uploads/firma.png");
+        String nameImg1 =  "firma.png";
+        Image firma1 = loadFiel(nameImg1);
         PdfPCell img1 = new PdfPCell(firma1);
         img1.setHorizontalAlignment(Element.ALIGN_LEFT);
         img1.setPaddingLeft(20);
         img1.setFixedHeight(32f);
         img1.setBorder(0);
 
-        File file2 = ResourceUtils.getFile("classpath:images/firma2.png");
-        String content2 = new String(Files.readAllBytes(file2.toPath()));
-        Image firma2 = Image.getInstance(content2);
-//        Image firma2 = Image.getInstance("C:/Proyectos/ing/uploads/firma2.png");
+        String nameImg2 =  "firma2.png";
+        Image firma2 = loadFiel(nameImg2);
         PdfPCell img2 = new PdfPCell(firma2);
         img2.setHorizontalAlignment(Element.ALIGN_LEFT);
         img2.setPaddingLeft(20);
