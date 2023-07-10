@@ -18,6 +18,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.Base64Utils;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
@@ -55,8 +56,10 @@ public class PDFService {
         ReportFile reportFile = new ReportFile();
 
         try {
-            PdfWriter.getInstance(document, outputStream);
-
+//            PdfWriter.getInstance(document, outputStream);
+//            Resource resource = resourceLoader.getResource("classpath:reports/");
+//            InputStream inputStream = resource.getInputStream();
+            PdfWriter.getInstance(document, new FileOutputStream("C:/Proyectos/ing/src/main/resources/reports/"+nameFile));
             // Opens the document to add content and margin is created.
             document.open();
             document.setMargins(50,50,50,50);
