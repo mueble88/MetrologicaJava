@@ -15,12 +15,10 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.stereotype.Service;
-import org.springframework.util.Base64Utils;
 
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.List;
 import java.util.UUID;
 
@@ -231,13 +229,16 @@ public class PDFService {
             document.close();
 
             byte[] pdfBytes = outputStream.toByteArray();
-            String encoded = Base64Utils.encodeToString(pdfBytes);
+//            String encoded = Base64Utils.encodeToString(pdfBytes);
             UUID uuid = UUID.randomUUID();
 
             reportFile.setId(uuid);
-            reportFile.setFile(encoded);
+            reportFile.setFile(" ");
             reportFile.setFilename(nameFile);
-            reportFilesRepository.save(reportFile);
+//            reportFilesRepository.save(reportFile);
+
+            List<ReportFile> allReportFiles= reportFilesRepository.findAll();
+            System.out.println(allReportFiles);
 
             System.out.println("Archivo PDF creado exitosamente.");
             System.out.println(reportFile.getFile());
@@ -246,7 +247,7 @@ public class PDFService {
         }
     }
 
-    public ReportFile getReportFile(UUID id){
+    public ReportFile getReportFile(UUID id) {
         return reportFilesRepository.findById(id).get();
     }
 

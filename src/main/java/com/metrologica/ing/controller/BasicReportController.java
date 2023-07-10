@@ -7,7 +7,6 @@ import com.metrologica.ing.model.*;
 import com.metrologica.ing.service.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -109,13 +108,18 @@ public class BasicReportController {
     }
 
     @GetMapping("/reportFile/{id}")
-    private ResponseEntity<String> getReportFile(@PathVariable UUID id) {
-        ReportFile reportFile = pdfService.getReportFile(id);
-//        String encoded = Base64Utils.encodeToString(picture.getImage());
-//        return ResponseEntity.ok()
-//                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + picture.getName() + "\"")
-//                .body(encoded);
-        return ResponseEntity.status(HttpStatus.OK).contentType(MediaType.valueOf("")).body(reportFile.getFile());
+    private String getReportFile(@PathVariable UUID id) {
+        List<ReportFile> reports = pdfService.getAllReportFile();
+        for(int i=0; i < reports.size(); i++){
+            if(reports.get(i).getId().compareTo(id) == 0){
+                ReportFile reportFile = reports.get(i);
+
+                return reportFile.getFile();
+            }
+        }
+//        ReportFile reportFile = pdfService.getReportFile(id);
+
+        return "PDF no encontrado";
     }
 
 }

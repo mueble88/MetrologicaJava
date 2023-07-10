@@ -12,7 +12,8 @@ import java.util.UUID;
 public class ReportFile {
 
     @Id
-    @GeneratedValue(generator = "uuid")
+//    @GeneratedValue(generator = "uuid")
+//    "org.hibernate.id.UUIDGenerator"
     @GenericGenerator(name = "uuid", strategy = "org.hibernate.id.UUIDGenerator")
     private UUID id;
 
