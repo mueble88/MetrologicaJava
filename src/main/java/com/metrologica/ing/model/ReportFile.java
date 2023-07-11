@@ -17,6 +17,8 @@ public class ReportFile {
     @GenericGenerator(name = "uuid", strategy = "org.hibernate.id.UUIDGenerator")
     private UUID id;
 
+//    @ManyToOne(fetch = FetchType.EAGER)
+//    @JoinColumn(name = "report_id",nullable = false)
     @Column(name= "report_id",nullable = false)
     private long reportId;
 

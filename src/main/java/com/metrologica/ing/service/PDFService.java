@@ -48,7 +48,7 @@ public class PDFService {
     private ReportFileRepository reportFilesRepository;
 
 
-    public void savePDF(String nameFile, Client client, EquipmentInfo equipmentInfo, TraceInfo traceInfo,HumedInDto humedIn, TemInDto temIn, TemOutDto temOut) {
+    public void savePDF(String nameFile, Client client, EquipmentInfo equipmentInfo, TraceInfo traceInfo,HumedInDto humedIn, TemInDto temIn, TemOutDto temOut, long idReport) {
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         Document document = new Document();
         ReportFile reportFile = new ReportFile();
@@ -233,12 +233,13 @@ public class PDFService {
             UUID uuid = UUID.randomUUID();
 
             reportFile.setId(uuid);
+            reportFile.setReportId(idReport);
             reportFile.setFile(" ");
             reportFile.setFilename(nameFile);
-//            reportFilesRepository.save(reportFile);
+            reportFilesRepository.save(reportFile);
 
-            List<ReportFile> allReportFiles= reportFilesRepository.findAll();
-            System.out.println(allReportFiles);
+//            List<ReportFile> allReportFiles= reportFilesRepository.findAll();
+//            System.out.println(allReportFiles);
 
             System.out.println("Archivo PDF creado exitosamente.");
             System.out.println(reportFile.getFile());
