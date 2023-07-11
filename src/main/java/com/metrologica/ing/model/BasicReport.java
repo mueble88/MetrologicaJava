@@ -24,15 +24,18 @@ public class BasicReport {
     @JoinColumn(name = "trace_info_id")
     private TraceInfo traceInfo;
 
+    private String reportName;
+
     //    cascade = CascadeType.ALL
     public BasicReport() {
     }
 
-    public BasicReport(long id, Client client, EquipmentInfo equipmentInfo, TraceInfo traceInfo) {
+    public BasicReport(long id, String reportName , Client client, EquipmentInfo equipmentInfo, TraceInfo traceInfo) {
         this.id = id;
         this.client = client;
         this.equipmentInfo = equipmentInfo;
         this.traceInfo = traceInfo;
+        this.reportName = reportName;
     }
 
     public long getId() {
@@ -65,5 +68,13 @@ public class BasicReport {
 
     public void setTraceInfo(TraceInfo traceInfo) {
         this.traceInfo = traceInfo;
+    }
+
+    public String getReportName() {
+        return reportName;
+    }
+
+    public void setReportName(String reportName) {
+        this.reportName = reportName;
     }
 }

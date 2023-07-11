@@ -1,6 +1,10 @@
 package com.metrologica.ing.util;
 
+import java.text.SimpleDateFormat;
+
 public class Utils {
+
+    public static SimpleDateFormat sdf = new SimpleDateFormat("MM-YYYY");
 
     public static double calculateAverage(double[] array){
 

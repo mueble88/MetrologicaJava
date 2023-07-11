@@ -5,7 +5,10 @@ import com.sun.xml.bind.v2.model.core.ID;
 
 public class BasicReportDto {
 
+    private long id;
     private long clientId;
+
+    private String reportName;
     private String nameE;
     private String brand;
     private String model;
@@ -33,8 +36,9 @@ public class BasicReportDto {
     public BasicReportDto() {
     }
 
-    public BasicReportDto(long clientId, String nameE, String brand, String model, String serialNumber, String location, String plate, long receptionTimestamp, long calibrationTimestamp, String measure, String unity, String measureRange, String resolution, String nameT, String modelT, String serialNumberT, long calibrationTimestampT, String certificate, String temperature, String humity, HumedInDto humedIn, TemInDto temIn, TemOutDto temOut) {
+    public BasicReportDto(long clientId,String reportName,  String nameE, String brand, String model, String serialNumber, String location, String plate, long receptionTimestamp, long calibrationTimestamp, String measure, String unity, String measureRange, String resolution, String nameT, String modelT, String serialNumberT, long calibrationTimestampT, String certificate, String temperature, String humity, HumedInDto humedIn, TemInDto temIn, TemOutDto temOut) {
         this.clientId = clientId;
+        this.reportName = reportName;
         this.nameE = nameE;
         this.brand = brand;
         this.model = model;
@@ -241,5 +245,21 @@ public class BasicReportDto {
 
     public void setTemOut(TemOutDto temOut) {
         this.temOut = temOut;
+    }
+
+    public long getId() {
+        return id;
+    }
+
+    public void setId(long id) {
+        this.id = id;
+    }
+
+    public String getReportName() {
+        return reportName;
+    }
+
+    public void setReportName(String reportName) {
+        this.reportName = reportName;
     }
 }

@@ -102,5 +102,9 @@ public class Client {
         this.city = city;
     }
 
+    public String getCityName(){
+       if(city == null) return "";
+       return city.getName();
+    }
 
 }

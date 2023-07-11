@@ -15,6 +15,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.stereotype.Service;
+import org.springframework.util.ResourceUtils;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -41,6 +42,9 @@ public class PDFService {
     @Value("classpath:resources/images/LogoIngM1.png")
     Resource resourceFile;
 
+    @Value( "${pdfDirectory}" )
+    private String reportDirectory;
+
     @Autowired
     private ResourceLoader resourceLoader;
 
@@ -57,7 +61,14 @@ public class PDFService {
 //            PdfWriter.getInstance(document, outputStream);
 //            Resource resource = resourceLoader.getResource("classpath:reports/");
 //            InputStream inputStream = resource.getInputStream();
-            PdfWriter.getInstance(document, new FileOutputStream("C:/Proyectos/ing/src/main/resources/reports/"+nameFile));
+            //Resource resource = resourceLoader.getResource ("classpath:reports/"+nameFile);
+            //String fileName = resource.getFilename();
+            File file = new File(reportDirectory + File.separator + nameFile);
+            if(!file.exists()){
+                file.createNewFile();
+            }
+
+            PdfWriter.getInstance(document, new FileOutputStream(file));
             // Opens the document to add content and margin is created.
             document.open();
             document.setMargins(50,50,50,50);
@@ -244,7 +255,7 @@ public class PDFService {
             System.out.println("Archivo PDF creado exitosamente.");
             System.out.println(reportFile.getFile());
         } catch (Exception e) {
-            System.out.println("Error al crear el archivo PDF: " + e);
+            System.out.println("Error al crear el archivo PDF: " + e.getStackTrace());
         }
     }
 
@@ -326,16 +337,6 @@ public class PDFService {
         colum1.setFixedHeight(36f);
         colum1.setBorder(0);
 
-        PdfPCell colum2 = new PdfPCell(new Paragraph(
-                client.getName()+"\n"
-                        +client.getCity().getName()+"\n"
-                        +client.getAddress(),
-                FontFactory.getFont("arial",size,Font.NORMAL,BaseColor.BLACK))
-        );
-        colum2.setHorizontalAlignment(Element.ALIGN_LEFT);
-        colum2.setFixedHeight(36f);
-        colum2.setBorder(0);
-
         PdfPCell colum3 = new PdfPCell(new Paragraph(
                   "Teléfono: "+"\n"+
                         "Email: "+"\n"+
@@ -358,7 +359,19 @@ public class PDFService {
 
         table.addCell(title);
         table.addCell(colum1);
-        table.addCell(colum2);
+
+        if(client != null) {
+            PdfPCell colum2 = new PdfPCell(new Paragraph(
+                    client.getName()+"\n"
+                            +client.getCityName()+"\n"
+                            +client.getAddress(),
+                    FontFactory.getFont("arial",size,Font.NORMAL,BaseColor.BLACK))
+            );
+            colum2.setHorizontalAlignment(Element.ALIGN_LEFT);
+            colum2.setFixedHeight(36f);
+            colum2.setBorder(0);
+            table.addCell(colum2);
+        }
         table.addCell(colum3);
         table.addCell(colum4);
 

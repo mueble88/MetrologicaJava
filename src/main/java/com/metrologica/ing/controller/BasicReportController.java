@@ -5,6 +5,7 @@ import com.itextpdf.text.*;
 import com.metrologica.ing.dto.*;
 import com.metrologica.ing.model.*;
 import com.metrologica.ing.service.*;
+import com.metrologica.ing.util.Utils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -13,6 +14,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.ServletException;
 import java.io.IOException;
+import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
@@ -75,12 +77,13 @@ public class BasicReportController {
         temOut.setMeasures(basicReportDto.getTemOut().getMeasures());
 
         BasicReport basicReport = new BasicReport();
+        basicReport.setReportName(basicReportDto.getReportName());
         basicReport.setTraceInfo(traceInfo);
         basicReport.setEquipmentInfo(equipmentInfo);
         basicReport.setClient(client);
         basicReportService.save(basicReport);
 
-        String nameFile = "reporte_de_"+client.getName()+".pdf";
+        String nameFile = basicReportDto.getReportName() +"-"+ Utils.sdf.format(new Date())+ " Termohigrometro(H-IN-OUT).pdf";
         pdfService.savePDF(nameFile, client, equipmentInfo, traceInfo, humedIn, temIn, temOut, basicReport.getId());
 
         return new ResponseEntity<BasicReport>(basicReport, HttpStatus.OK);
