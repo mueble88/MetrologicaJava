@@ -39,14 +39,14 @@ public class PDFService {
     double errorTemOut= 0;
     double standardDeviationTemOut = 0;
 
-    @Value("classpath:resources/images/LogoIngM1.png")
-    Resource resourceFile;
-
-    @Value( "${pdfDirectory}" )
-    private String reportDirectory;
+//    @Value("classpath:resources/images/LogoIngM1.png")
+//    Resource resourceFile;
 
     @Autowired
     private ResourceLoader resourceLoader;
+
+    @Value( "${pdfDirectory}" )
+    private String reportDirectory;
 
     @Autowired
     private ReportFileRepository reportFilesRepository;

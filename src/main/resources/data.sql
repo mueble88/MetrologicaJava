@@ -2,3 +2,8 @@ INSERT INTO metrologica.user (id, created_at, date_of_birth, email, last_name, l
 INSERT INTO metrologica.client (id, address, email, name, nit, city_id) VALUES (1, 'calle 48 bg', 'car@gmail.com', 'Carlos', '111111111', null);
 INSERT INTO metrologica.client (id, address, email, name, nit, city_id) VALUES (2, 'calle 8 a', 'MZ@gmail.com', 'Marco', '2222222', null);
 INSERT INTO metrologica.client (id, address, email, name, nit, city_id) VALUES (3, 'calle 7', 'rot@gmail.com', 'Robert', '33333333', null);
+
+INSERT INTO metrologica.user (created_at, date_of_birth, email, last_name, last_updated_at, name, password, phone) VALUES (1689172099, '1994-11-19 19:00:00', 'Ingeniarcorp@gmail.com', '1', 1689172099, 'Ingeniero', '{bcrypt}$2a$10$BaynDSzhrvWcU16M6MJGr.iZFRXeLcvlPACkuT/nC2KlFIkrGOhLy', '11111');
+INSERT INTO metrologica.user (created_at, date_of_birth, email, last_name, last_updated_at, name, password, phone) VALUES (1689172221, '1994-11-19 19:00:00', 'Ingeniarcorp2@gmail.com', '2', 1689172221, 'Ingeniero', '{bcrypt}$2a$10$rUunR17EHf.neIBZpzF1WeLXIIiJhixg0Rij9rumLQFMs3EkX6A4q', '22222');
+INSERT INTO metrologica.user (created_at, date_of_birth, email, last_name, last_updated_at, name, password, phone) VALUES (1689172250, '1994-11-19 19:00:00', 'Ingeniarcorp3@gmail.com', '3', 1689172250, 'Ingeniero', '{bcrypt}$2a$10$ojWCt43.pNZaewT1O3bJmuhlFlxrHUsfDdWcdn0U.D2KmIiVItTL6', '33333');
+INSERT INTO metrologica.user (created_at, date_of_birth, email, last_name, last_updated_at, name, password, phone) VALUES (1689172308, '1994-11-19 19:00:00', 'Ingeniarcorp31@gmail.com', '4', 1689172308, 'Ingeniero', '{bcrypt}$2a$10$ld44iUTwCB/YsriZRIj4Hez6syvkmczw/EdKdvyKOmWHG.zVKa.oq', '44444');
