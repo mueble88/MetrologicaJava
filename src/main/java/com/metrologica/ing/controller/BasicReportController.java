@@ -58,7 +58,7 @@ public class BasicReportController {
         equipmentInfo.setUnity(basicReportDto.getUnity());
         equipmentInfo.setMeasureRange(basicReportDto.getMeasureRange());
         equipmentInfo.setResolution(basicReportDto.getResolution());
-        equipmentInfoService.save(equipmentInfo);
+//        equipmentInfoService.save(equipmentInfo);
 
         traceInfo.setName(basicReportDto.getNameT());
         traceInfo.setModel(basicReportDto.getModelT());
@@ -67,7 +67,7 @@ public class BasicReportController {
         traceInfo.setCertificate(basicReportDto.getCertificate());
         traceInfo.setTemperature(basicReportDto.getTemperature());
         traceInfo.setHumity(basicReportDto.getHumity());
-        traceInfoService.save(traceInfo);
+//        traceInfoService.save(traceInfo);
 
         HumedInDto humedIn = new HumedInDto();
         humedIn.setMeasures(basicReportDto.getHumedIn().getMeasures());
@@ -81,7 +81,7 @@ public class BasicReportController {
         basicReport.setTraceInfo(traceInfo);
         basicReport.setEquipmentInfo(equipmentInfo);
         basicReport.setClient(client);
-        basicReportService.save(basicReport);
+//        basicReportService.save(basicReport);
 
         String nameFile = basicReportDto.getReportName() +"-"+ Utils.sdf.format(new Date())+ " Termohigrometro(H-IN-OUT).pdf";
         pdfService.savePDF(nameFile, client, equipmentInfo, traceInfo, humedIn, temIn, temOut, basicReport.getId());
@@ -125,4 +125,30 @@ public class BasicReportController {
         return "PDF no encontrado";
     }
 
+
+
+    private static final String EXTENSION = ".jpg";
+    private static final String SERVER_LOCATION = "/server/images";
+/*
+    @RequestMapping(path = "/download", method = RequestMethod.GET)
+    public ResponseEntity<Resource> download(@RequestParam("image") String image) throws IOException {
+        File file = new File(SERVER_LOCATION + File.separator + image + EXTENSION);
+
+        HttpHeaders header = new HttpHeaders();
+        header.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=img.jpg");
+        header.add("Cache-Control", "no-cache, no-store, must-revalidate");
+        header.add("Pragma", "no-cache");
+        header.add("Expires", "0");
+
+        Path path = Paths.get(file.getAbsolutePath());
+        ByteArrayResource resource = new ByteArrayResource(Files.readAllBytes(path));
+
+        return ResponseEntity.ok()
+                .headers(header)
+                .contentLength(file.length())
+                .contentType(MediaType.parseMediaType("application/octet-stream"))
+                .body(resource);
+    }
+
+*/
 }

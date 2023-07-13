@@ -26,7 +26,6 @@ public class BasicReport {
 
     private String reportName;
 
-    //    cascade = CascadeType.ALL
     public BasicReport() {
     }
 

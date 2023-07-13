@@ -8,6 +8,7 @@ import com.metrologica.ing.dto.TemInDto;
 import com.metrologica.ing.dto.TemOutDto;
 import com.metrologica.ing.model.*;
 import com.metrologica.ing.repository.ReportFileRepository;
+import com.metrologica.ing.util.FooterEvent;
 import com.metrologica.ing.util.Utils;
 import org.apache.tomcat.util.http.fileupload.ByteArrayOutputStream;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -68,7 +69,9 @@ public class PDFService {
                 file.createNewFile();
             }
 
-            PdfWriter.getInstance(document, new FileOutputStream(file));
+            PdfWriter pdfWriter = PdfWriter.getInstance(document, new FileOutputStream(file));
+            FooterEvent event = new FooterEvent();
+            pdfWriter.setPageEvent(event);
             // Opens the document to add content and margin is created.
             document.open();
             document.setMargins(50,50,50,50);
@@ -108,8 +111,9 @@ public class PDFService {
             lineBreak1.add("\n\n\n\n\n");
             document.add(lineBreak1);
 
-            PdfPTable footer = footer();
-            document.add(footer);
+//            onEndPage(pdfWriter, document);
+//            PdfPTable footer = footer();
+//            document.add(footer);
 
             // 2da page --------------------------------------------------------------->
             document.newPage();
@@ -166,7 +170,7 @@ public class PDFService {
             PdfPTable tableCalTemOut = temperatureCalibrationTableOut(equipmentInfo, traceInfo);
             document.add(tableCalTemOut);
             document.add(lineBreak1);
-            document.add(footer);
+//            document.add(footer);
 
             // 3er page--------------------------------------------------------------->
             Paragraph lineBreakFooter = new Paragraph();
@@ -188,7 +192,7 @@ public class PDFService {
             document.add(lineBreakTable);
             document.add(tableResultHumedIn2);
             document.add(lineBreakFooter);
-            document.add(footer);
+//            document.add(footer);
 
             // 4ta page--------------------------------------------------------------->
             document.newPage();
@@ -208,7 +212,7 @@ public class PDFService {
             document.add(lineBreakTable);
             document.add(tableResultTemIn2);
             document.add(lineBreakFooter);
-            document.add(footer);
+//            document.add(footer);
 
             // 5ta page--------------------------------------------------------------->
             document.newPage();
@@ -229,7 +233,7 @@ public class PDFService {
             document.add(lineBreakTable);
             document.add(tableResultTemOut2);
             document.add(lineBreakFooter);
-            document.add(footer);
+//            document.add(footer);
 
 //            PdfContentByte cb = writer.getDirectContent();
 //            ColumnText.showTextAligned(cb, Element.ALIGN_CENTER, footer(),
