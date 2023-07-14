@@ -144,11 +144,6 @@ public class BasicReportController {
         File file = new File(reportDirectory + File.separator + namePdf + EXTENSION);
 
         HttpHeaders header = new HttpHeaders();
-//        header.add("Content-Disposition", "inline; filename=archivo.pdf");
-//        header.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=img.jpg");
-//        header.add("Cache-Control", "no-cache, no-store, must-revalidate");
-//        header.add("Pragma", "no-cache");
-//        header.add("Expires", "0");
 
         Path path = Paths.get(file.getAbsolutePath());
         ByteArrayResource resource = new ByteArrayResource(Files.readAllBytes(path));
@@ -157,7 +152,6 @@ public class BasicReportController {
                 .headers(header)
                 .contentLength(file.length())
                 .contentType(MediaType.APPLICATION_PDF)
-//                .contentType(MediaType.parseMediaType("application/octet-stream"))
                 .body(resource);
     }
 
