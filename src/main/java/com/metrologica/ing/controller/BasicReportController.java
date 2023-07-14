@@ -7,16 +7,24 @@ import com.metrologica.ing.model.*;
 import com.metrologica.ing.service.*;
 import com.metrologica.ing.util.Utils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.Resource;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
+import org.springframework.core.io.ByteArrayResource;
 
 import javax.servlet.ServletException;
+import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 @RestController
 @RequestMapping("/api")
@@ -37,6 +45,11 @@ public class BasicReportController {
 
     @Autowired
     private PDFService pdfService;
+
+    private String EXTENSION = ".pdf";
+
+    @Value( "${pdfDirectory}" )
+    private String reportDirectory;
 
     @PostMapping("/basicReport")
     public ResponseEntity<BasicReport> saveBasicReport(@RequestBody BasicReportDto basicReportDto) throws IOException, DocumentException, ServletException {
@@ -126,19 +139,16 @@ public class BasicReportController {
     }
 
 
-
-    private static final String EXTENSION = ".jpg";
-    private static final String SERVER_LOCATION = "/server/images";
-/*
     @RequestMapping(path = "/download", method = RequestMethod.GET)
-    public ResponseEntity<Resource> download(@RequestParam("image") String image) throws IOException {
-        File file = new File(SERVER_LOCATION + File.separator + image + EXTENSION);
+    public ResponseEntity<Resource> downloadPdf(@RequestParam("pdf")String namePdf) throws IOException {
+        File file = new File(reportDirectory + File.separator + namePdf + EXTENSION);
 
         HttpHeaders header = new HttpHeaders();
-        header.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=img.jpg");
-        header.add("Cache-Control", "no-cache, no-store, must-revalidate");
-        header.add("Pragma", "no-cache");
-        header.add("Expires", "0");
+//        header.add("Content-Disposition", "inline; filename=archivo.pdf");
+//        header.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=img.jpg");
+//        header.add("Cache-Control", "no-cache, no-store, must-revalidate");
+//        header.add("Pragma", "no-cache");
+//        header.add("Expires", "0");
 
         Path path = Paths.get(file.getAbsolutePath());
         ByteArrayResource resource = new ByteArrayResource(Files.readAllBytes(path));
@@ -146,9 +156,10 @@ public class BasicReportController {
         return ResponseEntity.ok()
                 .headers(header)
                 .contentLength(file.length())
-                .contentType(MediaType.parseMediaType("application/octet-stream"))
+                .contentType(MediaType.APPLICATION_PDF)
+//                .contentType(MediaType.parseMediaType("application/octet-stream"))
                 .body(resource);
     }
 
-*/
+
 }
