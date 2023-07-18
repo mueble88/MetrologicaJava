@@ -71,7 +71,7 @@ public class BasicReportController {
         equipmentInfo.setUnity(basicReportDto.getUnity());
         equipmentInfo.setMeasureRange(basicReportDto.getMeasureRange());
         equipmentInfo.setResolution(basicReportDto.getResolution());
-//        equipmentInfoService.save(equipmentInfo);
+        equipmentInfoService.save(equipmentInfo);
 
         traceInfo.setName(basicReportDto.getNameT());
         traceInfo.setModel(basicReportDto.getModelT());
@@ -80,7 +80,7 @@ public class BasicReportController {
         traceInfo.setCertificate(basicReportDto.getCertificate());
         traceInfo.setTemperature(basicReportDto.getTemperature());
         traceInfo.setHumity(basicReportDto.getHumity());
-//        traceInfoService.save(traceInfo);
+        traceInfoService.save(traceInfo);
 
         HumedInDto humedIn = new HumedInDto();
         humedIn.setMeasures(basicReportDto.getHumedIn().getMeasures());
@@ -89,14 +89,17 @@ public class BasicReportController {
         TemOutDto temOut = new TemOutDto();
         temOut.setMeasures(basicReportDto.getTemOut().getMeasures());
 
+        String nameFile = basicReportDto.getReportName() +"-"+ Utils.sdf.format(new Date())+ " Termohigrometro(H-IN-OUT).pdf";
         BasicReport basicReport = new BasicReport();
-        basicReport.setReportName(basicReportDto.getReportName());
         basicReport.setTraceInfo(traceInfo);
         basicReport.setEquipmentInfo(equipmentInfo);
         basicReport.setClient(client);
-//        basicReportService.save(basicReport);
+        basicReport.setReportName(nameFile);
+        basicReportService.save(basicReport);
 
-        String nameFile = basicReportDto.getReportName() +"-"+ Utils.sdf.format(new Date())+ " Termohigrometro(H-IN-OUT).pdf";
+        long idBasicReport = basicReport.getId();
+        System.out.println(idBasicReport);
+
         pdfService.savePDF(nameFile, client, equipmentInfo, traceInfo, humedIn, temIn, temOut, basicReport.getId());
 
         return new ResponseEntity<BasicReport>(basicReport, HttpStatus.OK);
@@ -123,6 +126,7 @@ public class BasicReportController {
                 .body(pdfs);
     }
 
+    /*
     @GetMapping("/reportFile/{id}")
     private String getReportFile(@PathVariable UUID id) {
         List<ReportFile> reports = pdfService.getAllReportFile();
@@ -136,24 +140,40 @@ public class BasicReportController {
 //        ReportFile reportFile = pdfService.getReportFile(id);
 
         return "PDF no encontrado";
+    }*/
+
+
+    @GetMapping("/download/reportFile/{UUID}")
+    public ResponseEntity<Resource> downloadPdf(@PathVariable("UUID") UUID uuid) throws IOException {
+
+        ReportFile reportFile = new ReportFile();
+        List<ReportFile> reports = pdfService.getAllReportFile();
+        String message = "";
+
+        for (int i = 0; i < reports.size(); i++) {
+            if (reports.get(i).getId().compareTo(uuid) == 0) {
+                reportFile = reports.get(i);
+                long namePdf = reportFile.getReportId();
+                File file = new File(reportDirectory + File.separator + namePdf+".pdf");
+//                File file = new File(reportDirectory + File.separator + reportFile.getFilename());
+                HttpHeaders header = new HttpHeaders();
+
+                Path path = Paths.get(file.getAbsolutePath());
+                ByteArrayResource resource = new ByteArrayResource(Files.readAllBytes(path));
+
+                return ResponseEntity.ok()
+                        .headers(header)
+                        .contentLength(file.length())
+                        .contentType(MediaType.APPLICATION_PDF)
+                        .body(resource);
+            }else{
+                message = "reporte no encontrado";
+                System.out.println(message);
+            }
+        }
+        return null;
     }
 
-
-    @RequestMapping(path = "/download", method = RequestMethod.GET)
-    public ResponseEntity<Resource> downloadPdf(@RequestParam("pdf")String namePdf) throws IOException {
-        File file = new File(reportDirectory + File.separator + namePdf + EXTENSION);
-
-        HttpHeaders header = new HttpHeaders();
-
-        Path path = Paths.get(file.getAbsolutePath());
-        ByteArrayResource resource = new ByteArrayResource(Files.readAllBytes(path));
-
-        return ResponseEntity.ok()
-                .headers(header)
-                .contentLength(file.length())
-                .contentType(MediaType.APPLICATION_PDF)
-                .body(resource);
-    }
 
 
 }

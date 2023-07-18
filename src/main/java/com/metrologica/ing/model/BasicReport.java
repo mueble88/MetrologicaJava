@@ -24,6 +24,7 @@ public class BasicReport {
     @JoinColumn(name = "trace_info_id")
     private TraceInfo traceInfo;
 
+    @Column(name="report_name")
     private String reportName;
 
     public BasicReport() {

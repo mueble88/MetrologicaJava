@@ -64,7 +64,7 @@ public class PDFService {
 //            InputStream inputStream = resource.getInputStream();
             //Resource resource = resourceLoader.getResource ("classpath:reports/"+nameFile);
             //String fileName = resource.getFilename();
-            File file = new File(reportDirectory + File.separator + nameFile);
+            File file = new File(reportDirectory + File.separator + idReport + ".pdf");
             if(!file.exists()){
                 file.createNewFile();
             }

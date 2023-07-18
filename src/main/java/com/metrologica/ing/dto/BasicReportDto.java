@@ -7,7 +7,6 @@ public class BasicReportDto {
 
     private long id;
     private long clientId;
-
     private String reportName;
     private String nameE;
     private String brand;
@@ -69,6 +68,14 @@ public class BasicReportDto {
 
     public void setClientId(long clientId) {
         this.clientId = clientId;
+    }
+
+    public String getReportName() {
+        return reportName;
+    }
+
+    public void setReportName(String reportName) {
+        this.reportName = reportName;
     }
 
     public String getNameE() {
@@ -255,11 +262,5 @@ public class BasicReportDto {
         this.id = id;
     }
 
-    public String getReportName() {
-        return reportName;
-    }
 
-    public void setReportName(String reportName) {
-        this.reportName = reportName;
-    }
 }
