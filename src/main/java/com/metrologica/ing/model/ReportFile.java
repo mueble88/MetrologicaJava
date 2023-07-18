@@ -22,8 +22,8 @@ public class ReportFile {
     @Column(name= "report_id",nullable = false)
     private long reportId;
 
-    @Column(nullable = false)
-    private String file;
+//    @Column(nullable = false)
+//    private String file;
 
     @Column(nullable = false)
     private String filename;
@@ -32,10 +32,9 @@ public class ReportFile {
     public ReportFile() {
     }
 
-    public ReportFile(UUID id, long reportId, String file, String filename) {
+    public ReportFile(UUID id, long reportId, String filename) {
         this.id = id;
         this.reportId = reportId;
-        this.file = file;
         this.filename = filename;
     }
 
@@ -53,14 +52,6 @@ public class ReportFile {
 
     public void setReportId(long reportId) {
         this.reportId = reportId;
-    }
-
-    public String getFile() {
-        return file;
-    }
-
-    public void setFile(String file) {
-        this.file = file;
     }
 
     public String getFilename() {

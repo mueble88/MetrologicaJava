@@ -52,7 +52,7 @@ public class BasicReportController {
     private String reportDirectory;
 
     @PostMapping("/basicReport")
-    public ResponseEntity<BasicReport> saveBasicReport(@RequestBody BasicReportDto basicReportDto) throws IOException, DocumentException, ServletException {
+    public ResponseEntity<BasicReportAndFilesDto> saveBasicReport(@RequestBody BasicReportDto basicReportDto) throws IOException, DocumentException, ServletException {
 
         EquipmentInfo equipmentInfo = new EquipmentInfo();
         TraceInfo traceInfo = new TraceInfo();
@@ -100,9 +100,11 @@ public class BasicReportController {
         long idBasicReport = basicReport.getId();
         System.out.println(idBasicReport);
 
-        pdfService.savePDF(nameFile, client, equipmentInfo, traceInfo, humedIn, temIn, temOut, basicReport.getId());
-
-        return new ResponseEntity<BasicReport>(basicReport, HttpStatus.OK);
+        ReportFile reportFile = pdfService.savePDF(nameFile, client, equipmentInfo, traceInfo, humedIn, temIn, temOut, basicReport.getId());
+        BasicReportAndFilesDto basicReportAndFilesDto = new BasicReportAndFilesDto();
+        basicReportAndFilesDto.setBasicReport(basicReport);
+        basicReportAndFilesDto.setReportFile(reportFile);
+        return new ResponseEntity<BasicReportAndFilesDto>(basicReportAndFilesDto, HttpStatus.OK);
 
 //        return new ResponseEntity<BasicReport>(HttpStatus.BAD_REQUEST);
     }

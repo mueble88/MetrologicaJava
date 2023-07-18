@@ -53,7 +53,7 @@ public class PDFService {
     private ReportFileRepository reportFilesRepository;
 
 
-    public void savePDF(String nameFile, Client client, EquipmentInfo equipmentInfo, TraceInfo traceInfo,HumedInDto humedIn, TemInDto temIn, TemOutDto temOut, long idReport) {
+    public ReportFile savePDF(String nameFile, Client client, EquipmentInfo equipmentInfo, TraceInfo traceInfo,HumedInDto humedIn, TemInDto temIn, TemOutDto temOut, long idReport) {
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         Document document = new Document();
         ReportFile reportFile = new ReportFile();
@@ -249,7 +249,6 @@ public class PDFService {
 
             reportFile.setId(uuid);
             reportFile.setReportId(idReport);
-            reportFile.setFile(" ");
             reportFile.setFilename(nameFile);
             reportFilesRepository.save(reportFile);
 
@@ -257,10 +256,10 @@ public class PDFService {
 //            System.out.println(allReportFiles);
 
             System.out.println("Archivo PDF creado exitosamente.");
-            System.out.println(reportFile.getFile());
         } catch (Exception e) {
             System.out.println("Error al crear el archivo PDF: " + e.getStackTrace());
         }
+        return reportFile;
     }
 
     public ReportFile getReportFile(UUID id) {
