@@ -111,10 +111,6 @@ public class PDFService {
             lineBreak1.add("\n\n\n\n\n");
             document.add(lineBreak1);
 
-//            onEndPage(pdfWriter, document);
-//            PdfPTable footer = footer();
-//            document.add(footer);
-
             // 2da page --------------------------------------------------------------->
             document.newPage();
             document.add(header);
@@ -170,7 +166,6 @@ public class PDFService {
             PdfPTable tableCalTemOut = temperatureCalibrationTableOut(equipmentInfo, traceInfo);
             document.add(tableCalTemOut);
             document.add(lineBreak1);
-//            document.add(footer);
 
             // 3er page--------------------------------------------------------------->
             Paragraph lineBreakFooter = new Paragraph();
@@ -192,7 +187,6 @@ public class PDFService {
             document.add(lineBreakTable);
             document.add(tableResultHumedIn2);
             document.add(lineBreakFooter);
-//            document.add(footer);
 
             // 4ta page--------------------------------------------------------------->
             document.newPage();
@@ -212,7 +206,6 @@ public class PDFService {
             document.add(lineBreakTable);
             document.add(tableResultTemIn2);
             document.add(lineBreakFooter);
-//            document.add(footer);
 
             // 5ta page--------------------------------------------------------------->
             document.newPage();
@@ -233,12 +226,6 @@ public class PDFService {
             document.add(lineBreakTable);
             document.add(tableResultTemOut2);
             document.add(lineBreakFooter);
-//            document.add(footer);
-
-//            PdfContentByte cb = writer.getDirectContent();
-//            ColumnText.showTextAligned(cb, Element.ALIGN_CENTER, footer(),
-//                (document.right() - document.left()) / 2 + document.leftMargin(),
-//                    document.top() + 10, 0);
 
             // Cierra el documento
             document.close();
@@ -252,12 +239,10 @@ public class PDFService {
             reportFile.setFilename(nameFile);
             reportFilesRepository.save(reportFile);
 
-//            List<ReportFile> allReportFiles= reportFilesRepository.findAll();
-//            System.out.println(allReportFiles);
-
             System.out.println("Archivo PDF creado exitosamente.");
         } catch (Exception e) {
-            System.out.println("Error al crear el archivo PDF: " + e.getStackTrace());
+            System.out.println("Error al crear el archivo PDF: " + e.getStackTrace().toString());
+            System.out.println("Error al crear el archivo PDF: " + e.getMessage());
         }
         return reportFile;
     }

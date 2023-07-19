@@ -59,54 +59,55 @@ public class BasicReportController {
 
         Client client = clientService.getClientById(basicReportDto.getClientId());
 
-        equipmentInfo.setName(basicReportDto.getNameE());
-        equipmentInfo.setBrand(basicReportDto.getBrand());
-        equipmentInfo.setModel(basicReportDto.getModel());
-        equipmentInfo.setSerialNumber(basicReportDto.getSerialNumber());
-        equipmentInfo.setLocation(basicReportDto.getLocation());
-        equipmentInfo.setPlate(basicReportDto.getPlate());
-        equipmentInfo.setReceptionTimestamp(basicReportDto.getReceptionTimestamp());
-        equipmentInfo.setCalibrationTimestamp(basicReportDto.getCalibrationTimestamp());
-        equipmentInfo.setMeasure(basicReportDto.getMeasure());
-        equipmentInfo.setUnity(basicReportDto.getUnity());
-        equipmentInfo.setMeasureRange(basicReportDto.getMeasureRange());
-        equipmentInfo.setResolution(basicReportDto.getResolution());
+        if(client != null){
+            equipmentInfo.setName(basicReportDto.getNameE());
+            equipmentInfo.setBrand(basicReportDto.getBrand());
+            equipmentInfo.setModel(basicReportDto.getModel());
+            equipmentInfo.setSerialNumber(basicReportDto.getSerialNumber());
+            equipmentInfo.setLocation(basicReportDto.getLocation());
+            equipmentInfo.setPlate(basicReportDto.getPlate());
+            equipmentInfo.setReceptionTimestamp(basicReportDto.getReceptionTimestamp());
+            equipmentInfo.setCalibrationTimestamp(basicReportDto.getCalibrationTimestamp());
+            equipmentInfo.setMeasure(basicReportDto.getMeasure());
+            equipmentInfo.setUnity(basicReportDto.getUnity());
+            equipmentInfo.setMeasureRange(basicReportDto.getMeasureRange());
+            equipmentInfo.setResolution(basicReportDto.getResolution());
         equipmentInfoService.save(equipmentInfo);
 
-        traceInfo.setName(basicReportDto.getNameT());
-        traceInfo.setModel(basicReportDto.getModelT());
-        traceInfo.setSerialNumber(basicReportDto.getSerialNumberT());
-        traceInfo.setCalibrationTimestamp(basicReportDto.getCalibrationTimestampT());
-        traceInfo.setCertificate(basicReportDto.getCertificate());
-        traceInfo.setTemperature(basicReportDto.getTemperature());
-        traceInfo.setHumity(basicReportDto.getHumity());
+            traceInfo.setName(basicReportDto.getNameT());
+            traceInfo.setModel(basicReportDto.getModelT());
+            traceInfo.setSerialNumber(basicReportDto.getSerialNumberT());
+            traceInfo.setCalibrationTimestamp(basicReportDto.getCalibrationTimestampT());
+            traceInfo.setCertificate(basicReportDto.getCertificate());
+            traceInfo.setTemperature(basicReportDto.getTemperature());
+            traceInfo.setHumity(basicReportDto.getHumity());
         traceInfoService.save(traceInfo);
 
-        HumedInDto humedIn = new HumedInDto();
-        humedIn.setMeasures(basicReportDto.getHumedIn().getMeasures());
-        TemInDto temIn = new TemInDto();
-        temIn.setMeasures(basicReportDto.getTemIn().getMeasures());
-        TemOutDto temOut = new TemOutDto();
-        temOut.setMeasures(basicReportDto.getTemOut().getMeasures());
+            HumedInDto humedIn = new HumedInDto();
+            humedIn.setMeasures(basicReportDto.getHumedIn().getMeasures());
+            TemInDto temIn = new TemInDto();
+            temIn.setMeasures(basicReportDto.getTemIn().getMeasures());
+            TemOutDto temOut = new TemOutDto();
+            temOut.setMeasures(basicReportDto.getTemOut().getMeasures());
 
-        String nameFile = basicReportDto.getReportName() +"-"+ Utils.sdf.format(new Date())+ " Termohigrometro(H-IN-OUT).pdf";
-        BasicReport basicReport = new BasicReport();
-        basicReport.setTraceInfo(traceInfo);
-        basicReport.setEquipmentInfo(equipmentInfo);
-        basicReport.setClient(client);
-        basicReport.setReportName(nameFile);
+            String nameFile = basicReportDto.getReportName() +"-"+ Utils.sdf.format(new Date())+ " Termohigrometro(H-IN-OUT).pdf";
+            BasicReport basicReport = new BasicReport();
+            basicReport.setTraceInfo(traceInfo);
+            basicReport.setEquipmentInfo(equipmentInfo);
+            basicReport.setClient(client);
+            basicReport.setReportName(nameFile);
         basicReportService.save(basicReport);
 
-        long idBasicReport = basicReport.getId();
-        System.out.println(idBasicReport);
+            long idBasicReport = basicReport.getId();
+            System.out.println(idBasicReport);
 
-        ReportFile reportFile = pdfService.savePDF(nameFile, client, equipmentInfo, traceInfo, humedIn, temIn, temOut, basicReport.getId());
-        BasicReportAndFilesDto basicReportAndFilesDto = new BasicReportAndFilesDto();
-        basicReportAndFilesDto.setBasicReport(basicReport);
-        basicReportAndFilesDto.setReportFile(reportFile);
-        return new ResponseEntity<BasicReportAndFilesDto>(basicReportAndFilesDto, HttpStatus.OK);
-
-//        return new ResponseEntity<BasicReport>(HttpStatus.BAD_REQUEST);
+            ReportFile reportFile = pdfService.savePDF(nameFile, client, equipmentInfo, traceInfo, humedIn, temIn, temOut, basicReport.getId());
+            BasicReportAndFilesDto basicReportAndFilesDto = new BasicReportAndFilesDto();
+            basicReportAndFilesDto.setBasicReport(basicReport);
+            basicReportAndFilesDto.setReportFile(reportFile);
+            return new ResponseEntity<BasicReportAndFilesDto>(basicReportAndFilesDto, HttpStatus.OK);
+        }
+        return new ResponseEntity<BasicReportAndFilesDto>(HttpStatus.BAD_REQUEST);
     }
 
     @GetMapping("/reports")
