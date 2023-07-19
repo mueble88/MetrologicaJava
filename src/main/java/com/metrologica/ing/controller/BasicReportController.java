@@ -28,7 +28,7 @@ import java.nio.file.Paths;
 
 @RestController
 @RequestMapping("/api")
-@CrossOrigin(origins = "http://localhost:4200")
+@CrossOrigin(origins = "http://localhost:8080")
 public class BasicReportController {
 
     @Autowired
@@ -52,7 +52,7 @@ public class BasicReportController {
     private String reportDirectory;
 
     @PostMapping("/basicReport")
-    public ResponseEntity<BasicReportAndFilesDto> saveBasicReport(@RequestBody BasicReportDto basicReportDto) throws IOException, DocumentException, ServletException {
+    public ResponseEntity<BasicReport> saveBasicReport(@RequestBody BasicReportDto basicReportDto) throws IOException, DocumentException, ServletException {
 
         EquipmentInfo equipmentInfo = new EquipmentInfo();
         TraceInfo traceInfo = new TraceInfo();
@@ -72,7 +72,7 @@ public class BasicReportController {
             equipmentInfo.setUnity(basicReportDto.getUnity());
             equipmentInfo.setMeasureRange(basicReportDto.getMeasureRange());
             equipmentInfo.setResolution(basicReportDto.getResolution());
-        equipmentInfoService.save(equipmentInfo);
+            equipmentInfoService.save(equipmentInfo);
 
             traceInfo.setName(basicReportDto.getNameT());
             traceInfo.setModel(basicReportDto.getModelT());
@@ -81,7 +81,7 @@ public class BasicReportController {
             traceInfo.setCertificate(basicReportDto.getCertificate());
             traceInfo.setTemperature(basicReportDto.getTemperature());
             traceInfo.setHumity(basicReportDto.getHumity());
-        traceInfoService.save(traceInfo);
+            traceInfoService.save(traceInfo);
 
             HumedInDto humedIn = new HumedInDto();
             humedIn.setMeasures(basicReportDto.getHumedIn().getMeasures());
@@ -90,28 +90,25 @@ public class BasicReportController {
             TemOutDto temOut = new TemOutDto();
             temOut.setMeasures(basicReportDto.getTemOut().getMeasures());
 
-            String nameFile = basicReportDto.getReportName() +"-"+ Utils.sdf.format(new Date())+ " Termohigrometro(H-IN-OUT).pdf";
             BasicReport basicReport = new BasicReport();
             basicReport.setTraceInfo(traceInfo);
             basicReport.setEquipmentInfo(equipmentInfo);
             basicReport.setClient(client);
-            basicReport.setReportName(nameFile);
-        basicReportService.save(basicReport);
+            basicReport.setReportName(basicReportDto.getReportName());
+            basicReportService.save(basicReport);
 
-            long idBasicReport = basicReport.getId();
-            System.out.println(idBasicReport);
+            //TODO: Donde se estan guardando las medidas tomadas en la bd? Hay q agregarlas
 
-            ReportFile reportFile = pdfService.savePDF(nameFile, client, equipmentInfo, traceInfo, humedIn, temIn, temOut, basicReport.getId());
-            BasicReportAndFilesDto basicReportAndFilesDto = new BasicReportAndFilesDto();
-            basicReportAndFilesDto.setBasicReport(basicReport);
-            basicReportAndFilesDto.setReportFile(reportFile);
-            return new ResponseEntity<BasicReportAndFilesDto>(basicReportAndFilesDto, HttpStatus.OK);
+
+            String nameFile = basicReportDto.getReportName() +"-"+ Utils.sdf.format(new Date())+ " Termohigrometro(H-IN-OUT).pdf";
+            ReportFile reportFile = pdfService.savePDF(basicReport, humedIn, temIn, temOut);
+            return new ResponseEntity<BasicReport>(basicReport, HttpStatus.OK);
         }
-        return new ResponseEntity<BasicReportAndFilesDto>(HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<BasicReport>(HttpStatus.BAD_REQUEST);
     }
 
     @GetMapping("/reports")
-    private List<BasicReport> getClients(@RequestParam(defaultValue = "0") int offset,
+    private List<BasicReport> getReports(@RequestParam(defaultValue = "0") int offset,
                                     @RequestParam(defaultValue = "10") int pageSize,
                                     @RequestParam(defaultValue = "name") String field,
                                     @RequestParam(defaultValue = "asc") String sort){
@@ -146,34 +143,24 @@ public class BasicReportController {
     }*/
 
 
-    @GetMapping("/download/reportFile/{UUID}")
-    public ResponseEntity<Resource> downloadPdf(@PathVariable("UUID") UUID uuid) throws IOException {
+    @GetMapping("/download/reportFile/{id}")
+    public ResponseEntity<Resource> downloadPdf(@PathVariable("id") Long id) throws IOException {
 
-        ReportFile reportFile = new ReportFile();
-        List<ReportFile> reports = pdfService.getAllReportFile();
-        String message = "";
+        File file = new File(reportDirectory + File.separator + id+".pdf");
 
-        for (int i = 0; i < reports.size(); i++) {
-            if (reports.get(i).getId().compareTo(uuid) == 0) {
-                reportFile = reports.get(i);
-                long namePdf = reportFile.getReportId();
-                File file = new File(reportDirectory + File.separator + namePdf+".pdf");
-//                File file = new File(reportDirectory + File.separator + reportFile.getFilename());
-                HttpHeaders header = new HttpHeaders();
-
-                Path path = Paths.get(file.getAbsolutePath());
-                ByteArrayResource resource = new ByteArrayResource(Files.readAllBytes(path));
-
-                return ResponseEntity.ok()
-                        .headers(header)
-                        .contentLength(file.length())
-                        .contentType(MediaType.APPLICATION_PDF)
-                        .body(resource);
-            }else{
-                message = "reporte no encontrado";
-                System.out.println(message);
-            }
+        if(file.exists()){
+            HttpHeaders header = new HttpHeaders();
+            Path path = Paths.get(file.getAbsolutePath());
+            ByteArrayResource resource = new ByteArrayResource(Files.readAllBytes(path));
+            return ResponseEntity.ok()
+                    .headers(header)
+                    .contentLength(file.length())
+                    .contentType(MediaType.APPLICATION_PDF)
+                    .body(resource);
+        }else{
+            System.out.println("File does not exist");
         }
+
         return null;
     }
 

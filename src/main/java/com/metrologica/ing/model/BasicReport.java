@@ -24,18 +24,23 @@ public class BasicReport {
     @JoinColumn(name = "trace_info_id")
     private TraceInfo traceInfo;
 
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "report_file_id")
+    private ReportFile reportFile;
+
     @Column(name="report_name")
     private String reportName;
 
     public BasicReport() {
     }
 
-    public BasicReport(long id, String reportName , Client client, EquipmentInfo equipmentInfo, TraceInfo traceInfo) {
+    public BasicReport(long id, String reportName , Client client, EquipmentInfo equipmentInfo, TraceInfo traceInfo, ReportFile reportFile) {
         this.id = id;
         this.client = client;
         this.equipmentInfo = equipmentInfo;
         this.traceInfo = traceInfo;
         this.reportName = reportName;
+        this.reportFile = reportFile;
     }
 
     public long getId() {

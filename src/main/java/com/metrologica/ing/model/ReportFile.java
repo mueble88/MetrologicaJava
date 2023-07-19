@@ -2,7 +2,6 @@ package com.metrologica.ing.model;
 
 import org.hibernate.annotations.GenericGenerator;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
-
 import javax.persistence.*;
 import java.util.UUID;
 
@@ -12,18 +11,8 @@ import java.util.UUID;
 public class ReportFile {
 
     @Id
-//    @GeneratedValue(generator = "uuid")
-//    "org.hibernate.id.UUIDGenerator"
     @GenericGenerator(name = "uuid", strategy = "org.hibernate.id.UUIDGenerator")
     private UUID id;
-
-//    @ManyToOne(fetch = FetchType.EAGER)
-//    @JoinColumn(name = "report_id",nullable = false)
-    @Column(name= "report_id",nullable = false)
-    private long reportId;
-
-//    @Column(nullable = false)
-//    private String file;
 
     @Column(nullable = false)
     private String filename;
@@ -32,9 +21,8 @@ public class ReportFile {
     public ReportFile() {
     }
 
-    public ReportFile(UUID id, long reportId, String filename) {
+    public ReportFile(UUID id, String filename) {
         this.id = id;
-        this.reportId = reportId;
         this.filename = filename;
     }
 
@@ -44,14 +32,6 @@ public class ReportFile {
 
     public void setId(UUID id) {
         this.id = id;
-    }
-
-    public long getReportId() {
-        return reportId;
-    }
-
-    public void setReportId(long reportId) {
-        this.reportId = reportId;
     }
 
     public String getFilename() {

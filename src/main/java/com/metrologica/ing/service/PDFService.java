@@ -53,18 +53,13 @@ public class PDFService {
     private ReportFileRepository reportFilesRepository;
 
 
-    public ReportFile savePDF(String nameFile, Client client, EquipmentInfo equipmentInfo, TraceInfo traceInfo,HumedInDto humedIn, TemInDto temIn, TemOutDto temOut, long idReport) {
+    public ReportFile savePDF( BasicReport basicReport, HumedInDto humedIn, TemInDto temIn, TemOutDto temOut) {
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         Document document = new Document();
         ReportFile reportFile = new ReportFile();
 
         try {
-//            PdfWriter.getInstance(document, outputStream);
-//            Resource resource = resourceLoader.getResource("classpath:reports/");
-//            InputStream inputStream = resource.getInputStream();
-            //Resource resource = resourceLoader.getResource ("classpath:reports/"+nameFile);
-            //String fileName = resource.getFilename();
-            File file = new File(reportDirectory + File.separator + idReport + ".pdf");
+            File file = new File(reportDirectory + File.separator + basicReport.getId() + ".pdf");
             if(!file.exists()){
                 file.createNewFile();
             }
@@ -85,13 +80,13 @@ public class PDFService {
             title .setAlignment(Chunk.ALIGN_CENTER);
             document.add(title );
 
-            PdfPTable tableClient = infCliente(client);
+            PdfPTable tableClient = infCliente(basicReport.getClient());
             document.add(tableClient);
 
-            PdfPTable tableEquipment = infEquipment(equipmentInfo);
+            PdfPTable tableEquipment = infEquipment(basicReport.getEquipmentInfo());
             document.add(tableEquipment);
 
-            PdfPTable tableTrace = infTrace(traceInfo);
+            PdfPTable tableTrace = infTrace(basicReport.getTraceInfo());
             document.add(tableTrace);
 
             Paragraph lineBreak = new Paragraph();
@@ -157,13 +152,13 @@ public class PDFService {
             document.add(sourceOfUncertainty);
             document.add(paragraphCalibration3);
             document.add(lineBreak);
-            PdfPTable tableCalTempIn = temperatureCalibrationTableIn(equipmentInfo, traceInfo);
+            PdfPTable tableCalTempIn = temperatureCalibrationTableIn(basicReport.getEquipmentInfo() , basicReport.getTraceInfo());
             document.add(tableCalTempIn);
             document.add(lineBreakTable);
-            PdfPTable tableCalHumedad = calibrationHumedTable(equipmentInfo, traceInfo);
+            PdfPTable tableCalHumedad = calibrationHumedTable(basicReport.getEquipmentInfo() , basicReport.getTraceInfo());
             document.add(tableCalHumedad);
             document.add(lineBreakTable);
-            PdfPTable tableCalTemOut = temperatureCalibrationTableOut(equipmentInfo, traceInfo);
+            PdfPTable tableCalTemOut = temperatureCalibrationTableOut(basicReport.getEquipmentInfo() , basicReport.getTraceInfo());
             document.add(tableCalTemOut);
             document.add(lineBreak1);
 
@@ -230,19 +225,10 @@ public class PDFService {
             // Cierra el documento
             document.close();
 
-            byte[] pdfBytes = outputStream.toByteArray();
-//            String encoded = Base64Utils.encodeToString(pdfBytes);
-            UUID uuid = UUID.randomUUID();
-
-            reportFile.setId(uuid);
-            reportFile.setReportId(idReport);
-            reportFile.setFilename(nameFile);
-            reportFilesRepository.save(reportFile);
-
             System.out.println("Archivo PDF creado exitosamente.");
         } catch (Exception e) {
-            System.out.println("Error al crear el archivo PDF: " + e.getStackTrace().toString());
             System.out.println("Error al crear el archivo PDF: " + e.getMessage());
+            e.printStackTrace();
         }
         return reportFile;
     }
