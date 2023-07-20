@@ -19,11 +19,13 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter{
     protected void configure(HttpSecurity http) throws Exception {
         http
                 .csrf().disable()
+
                 .addFilterBefore(new JwtTokenFilter(), UsernamePasswordAuthenticationFilter.class)
+
                 .authorizeRequests()
-                // dont authenticate this particular request
-                .antMatchers("/api/login").permitAll()
-                .antMatchers("/api/download").permitAll()
+                    // dont authenticate this particular request
+                    .antMatchers("/api/login").permitAll()
+                    .antMatchers("/api/download/**").permitAll()
                 // all other requests need to be authenticated
                 .anyRequest().authenticated();
 
