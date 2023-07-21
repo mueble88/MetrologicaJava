@@ -10,6 +10,7 @@ import com.metrologica.ing.model.*;
 import com.metrologica.ing.repository.ReportFileRepository;
 import com.metrologica.ing.util.FooterEvent;
 import com.metrologica.ing.util.Utils;
+import org.apache.commons.io.IOUtils;
 import org.apache.tomcat.util.http.fileupload.ByteArrayOutputStream;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -245,9 +246,7 @@ public class PDFService {
 
     public Image loadFiel(String nameImg) throws IOException, BadElementException {
         Resource resource = resourceLoader.getResource("classpath:images/"+nameImg);
-        File file = resource.getFile();
-        Image image = Image.getInstance(String.valueOf(file));
-
+        Image image = Image.getInstance( IOUtils.toByteArray( resource.getInputStream() ) );
         return image;
     }
 
