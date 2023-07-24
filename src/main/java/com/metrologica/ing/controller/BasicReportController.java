@@ -4,6 +4,9 @@ package com.metrologica.ing.controller;
 import com.itextpdf.text.*;
 import com.metrologica.ing.dto.*;
 import com.metrologica.ing.model.*;
+import com.metrologica.ing.repository.HumedInRepository;
+import com.metrologica.ing.repository.TemInRepository;
+import com.metrologica.ing.repository.TemOutRepository;
 import com.metrologica.ing.service.*;
 import com.metrologica.ing.util.Utils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,6 +49,15 @@ public class BasicReportController {
     @Autowired
     private PDFService pdfService;
 
+    @Autowired
+    private HumedInRepository humedInRepository;
+
+    @Autowired
+    private TemInRepository temInRepository;
+
+    @Autowired
+    private TemOutRepository temOutRepository;
+
     private String EXTENSION = ".pdf";
 
     @Value( "${pdfDirectory}" )
@@ -56,6 +68,9 @@ public class BasicReportController {
 
         EquipmentInfo equipmentInfo = new EquipmentInfo();
         TraceInfo traceInfo = new TraceInfo();
+        HumedIn humedI = new HumedIn();
+        TemIn temI = new TemIn();
+        TemOut temO = new TemOut();
 
         Client client = clientService.getClientById(basicReportDto.getClientId());
 
@@ -66,8 +81,10 @@ public class BasicReportController {
             equipmentInfo.setSerialNumber(basicReportDto.getSerialNumber());
             equipmentInfo.setLocation(basicReportDto.getLocation());
             equipmentInfo.setPlate(basicReportDto.getPlate());
-            equipmentInfo.setReceptionTimestamp(basicReportDto.getReceptionTimestamp());
-            equipmentInfo.setCalibrationTimestamp(basicReportDto.getCalibrationTimestamp());
+            long equipmentReceptionTS = System.currentTimeMillis()/1000;
+            equipmentInfo.setReceptionTimestamp(equipmentReceptionTS);
+            long equipmentCalibrationTS = System.currentTimeMillis()/1000;
+            equipmentInfo.setCalibrationTimestamp(equipmentCalibrationTS);
             equipmentInfo.setMeasure(basicReportDto.getMeasure());
             equipmentInfo.setUnity(basicReportDto.getUnity());
             equipmentInfo.setMeasureRange(basicReportDto.getMeasureRange());
@@ -77,11 +94,19 @@ public class BasicReportController {
             traceInfo.setName(basicReportDto.getNameT());
             traceInfo.setModel(basicReportDto.getModelT());
             traceInfo.setSerialNumber(basicReportDto.getSerialNumberT());
-            traceInfo.setCalibrationTimestamp(basicReportDto.getCalibrationTimestampT());
+            long traceCalibrationTS = System.currentTimeMillis()/1000;
+            traceInfo.setCalibrationTimestamp(traceCalibrationTS);
             traceInfo.setCertificate(basicReportDto.getCertificate());
             traceInfo.setTemperature(basicReportDto.getTemperature());
             traceInfo.setHumity(basicReportDto.getHumity());
             traceInfoService.save(traceInfo);
+
+//            humedI.setMeasures(basicReportDto.getHumedIn().getMeasures());
+//            humedInRepository.save(humedI);
+//            temI.setMeasures(basicReportDto.getTemIn().getMeasures());
+//            temInRepository.save(temI);
+//            temO.setMeasures(basicReportDto.getTemOut().getMeasures());
+//            temOutRepository.save(temO);
 
             HumedInDto humedIn = new HumedInDto();
             humedIn.setMeasures(basicReportDto.getHumedIn().getMeasures());
@@ -97,9 +122,6 @@ public class BasicReportController {
             basicReport.setReportName(basicReportDto.getReportName());
             basicReportService.save(basicReport);
 
-            //TODO: Donde se estan guardando las medidas tomadas en la bd? Hay q agregarlas
-
-
             String nameFile = basicReportDto.getReportName() +"-"+ Utils.sdf.format(new Date())+ " Termohigrometro(H-IN-OUT).pdf";
             ReportFile reportFile = pdfService.savePDF(basicReport, humedIn, temIn, temOut);
             return new ResponseEntity<BasicReport>(basicReport, HttpStatus.OK);
@@ -108,14 +130,10 @@ public class BasicReportController {
     }
 
     @GetMapping("/reports")
-    private List<BasicReport> getReports(@RequestParam(defaultValue = "0") int offset,
-                                    @RequestParam(defaultValue = "10") int pageSize,
-                                    @RequestParam(defaultValue = "name") String field,
-                                    @RequestParam(defaultValue = "asc") String sort){
-
-        //Page<Client> clientWithPagination = clientService.findClientWithPaginationAndSorting(offset, pageSize, field, sort);
-        //return new APIResponseDto<>(clientWithPagination.getSize(), clientWithPagination);
-        return basicReportService.findAll();
+    private List<BasicReport> getReports(@RequestParam(defaultValue = "id") String field,
+                                         @RequestParam(defaultValue = "desc") String sort){
+        List<BasicReport> reports = basicReportService.findBasicReportWithSorting(field, sort);
+        return reports;
     }
 
     @GetMapping("/reportFiles")
@@ -125,23 +143,6 @@ public class BasicReportController {
                 .ok()
                 .body(pdfs);
     }
-
-    /*
-    @GetMapping("/reportFile/{id}")
-    private String getReportFile(@PathVariable UUID id) {
-        List<ReportFile> reports = pdfService.getAllReportFile();
-        for(int i=0; i < reports.size(); i++){
-            if(reports.get(i).getId().compareTo(id) == 0){
-                ReportFile reportFile = reports.get(i);
-
-                return reportFile.getFile();
-            }
-        }
-//        ReportFile reportFile = pdfService.getReportFile(id);
-
-        return "PDF no encontrado";
-    }*/
-
 
     @GetMapping("/download/reportFile/{id}")
     public ResponseEntity<Resource> downloadPdf(@PathVariable("id") Long id) throws IOException {

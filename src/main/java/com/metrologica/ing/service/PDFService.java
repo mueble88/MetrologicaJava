@@ -21,6 +21,7 @@ import org.springframework.util.ResourceUtils;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
@@ -39,9 +40,6 @@ public class PDFService {
     double equipmentTemOut  = 0;
     double errorTemOut= 0;
     double standardDeviationTemOut = 0;
-
-//    @Value("classpath:resources/images/LogoIngM1.png")
-//    Resource resourceFile;
 
     @Autowired
     private ResourceLoader resourceLoader;
@@ -74,42 +72,52 @@ public class PDFService {
             PdfPTable header = header();
             document.add(header);
 
-            Paragraph title  = new Paragraph("\n\nInforme De Calibración Trazable\n\n",
-                    FontFactory.getFont("arial",14,Font.BOLD,BaseColor.BLACK)
-                    );
-            title .setAlignment(Chunk.ALIGN_CENTER);
-            document.add(title );
-
-            PdfPTable tableClient = infCliente(basicReport.getClient());
-            document.add(tableClient);
-
-            PdfPTable tableEquipment = infEquipment(basicReport.getEquipmentInfo());
-            document.add(tableEquipment);
-
-            PdfPTable tableTrace = infTrace(basicReport.getTraceInfo());
-            document.add(tableTrace);
+            Paragraph lineBreakOne = new Paragraph();
+            lineBreakOne.add("\n");
 
             Paragraph lineBreak = new Paragraph();
             lineBreak.add("\n\n");
             document.add(lineBreak);
+
+            Paragraph lineBreaktwo = new Paragraph();
+            lineBreaktwo.add("\n\n\n\n\n");
+
+            PdfPTable nameReport = nameReport(basicReport.getReportName());
+            document.add(nameReport);
+
+            Paragraph title  = new Paragraph("Informe De Calibración Trazable",
+                    FontFactory.getFont("arial",14,Font.BOLD,BaseColor.BLACK)
+                    );
+            title .setAlignment(Chunk.ALIGN_CENTER);
+            document.add(title );
+            document.add(lineBreakOne);
+
+            PdfPTable tableClient = infCliente(basicReport.getClient());
+            document.add(tableClient);
+            document.add(lineBreakOne);
+
+            PdfPTable tableEquipment = infEquipment(basicReport.getEquipmentInfo());
+            document.add(tableEquipment);
+            document.add(lineBreakOne);
+
+            PdfPTable tableTrace = infTrace(basicReport.getTraceInfo());
+            document.add(tableTrace);
+            document.add(lineBreakOne);
 
             String nameImg =  "parrafo.png";
             Image paragraph = loadFiel(nameImg);
             paragraph.scaleToFit(500, 100);
             paragraph.setAlignment(Chunk.ALIGN_CENTER);
             document.add(paragraph);
-            document.add(lineBreak);
+            document.add(lineBreakOne);
             PdfPTable firmas = firma();
             document.add(firmas);
-
-            Paragraph lineBreak1 = new Paragraph();
-            lineBreak1.add("\n\n\n\n\n");
-            document.add(lineBreak1);
 
             // 2da page --------------------------------------------------------------->
             document.newPage();
             document.add(header);
             document.add(lineBreak);
+            document.add(nameReport);
 
             Paragraph infCalibracion = new Paragraph("Método De Calibración\n\n",
                     FontFactory.getFont("arial",11,Font.BOLD,BaseColor.BLACK)
@@ -160,7 +168,7 @@ public class PDFService {
             document.add(lineBreakTable);
             PdfPTable tableCalTemOut = temperatureCalibrationTableOut(basicReport.getEquipmentInfo() , basicReport.getTraceInfo());
             document.add(tableCalTemOut);
-            document.add(lineBreak1);
+            document.add(lineBreaktwo);
 
             // 3er page--------------------------------------------------------------->
             Paragraph lineBreakFooter = new Paragraph();
@@ -285,146 +293,251 @@ public class PDFService {
         return table;
     }
 
+    public PdfPTable nameReport(String reportName) throws DocumentException{
+        PdfPTable table = new PdfPTable(2);
+        table.setWidths(new float[] {50,50});
+
+        PdfPCell cellEmpty = new PdfPCell(new Paragraph("",
+                FontFactory.getFont("arial",9,Font.BOLD,BaseColor.BLACK))
+        );
+        cellEmpty.setBorder(0);
+        table.addCell(cellEmpty);
+        PdfPCell title = new PdfPCell(new Paragraph(reportName,
+                FontFactory.getFont("arial",9,Font.BOLD,BaseColor.BLACK))
+        );
+        title.setHorizontalAlignment(Element.ALIGN_RIGHT);
+        title.setBorder(0);
+        table.addCell(title);
+
+        return table;
+    }
+
     public PdfPTable infCliente(Client client) throws DocumentException {
 
         int size = 8;
+        Font fontBold = FontFactory.getFont("arial",size,Font.BOLD,BaseColor.BLACK);
+        Font fontNormal = FontFactory.getFont("arial",size,Font.NORMAL,BaseColor.BLACK);
         PdfPTable table = new PdfPTable(4);
-        table.setWidths(new float[] {25, 20, 25, 20});
+        table.setWidths(new float[] {18, 27, 18, 27});
         table.setWidthPercentage(90);
         table.getDefaultCell().setBorder(0);
         table.setHorizontalAlignment(Element.ALIGN_CENTER);
 
         PdfPCell title = new PdfPCell(new Paragraph("INFORMACIÓN DEL CLIENTE",
-                FontFactory.getFont("arial",9,Font.NORMAL,BaseColor.BLACK)));
+                FontFactory.getFont("arial",9,Font.BOLD,BaseColor.BLACK)));
         title.setColspan(4);
         title.setFixedHeight(14f);
         title.setBorder(0);
         title.setHorizontalAlignment(Element.ALIGN_LEFT);
-
-        PdfPCell colum1 = new PdfPCell(new Paragraph(
-                  "Nombre Solicitante: "+"\n"+
-                        "Ciudad: "+"\n"+
-                        "Dirección: ",
-                FontFactory.getFont("arial",size,Font.BOLD,BaseColor.BLACK))
-        );
-        colum1.setHorizontalAlignment(Element.ALIGN_LEFT);
-        colum1.setFixedHeight(36f);
-        colum1.setBorder(0);
-
-        PdfPCell colum3 = new PdfPCell(new Paragraph(
-                  "Teléfono: "+"\n"+
-                        "Email: "+"\n"+
-                        "NIT:",
-                FontFactory.getFont("arial",size,Font.BOLD,BaseColor.BLACK))
-        );
-        colum3.setHorizontalAlignment(Element.ALIGN_LEFT);
-        colum3.setFixedHeight(36f);
-        colum3.setBorder(0);
-
-        PdfPCell colum4 = new PdfPCell(new Paragraph(
-                client.getPhone()+"\n"
-                        +client.getEmail()+"\n"
-                        +client.getNit(),
-                FontFactory.getFont("arial",size,Font.NORMAL,BaseColor.BLACK))
-        );
-        colum4.setHorizontalAlignment(Element.ALIGN_LEFT);
-        colum4.setFixedHeight(36f);
-        colum4.setBorder(0);
-
         table.addCell(title);
-        table.addCell(colum1);
 
         if(client != null) {
-            PdfPCell colum2 = new PdfPCell(new Paragraph(
-                    client.getName()+"\n"
-                            +client.getCityName()+"\n"
-                            +client.getAddress(),
-                    FontFactory.getFont("arial",size,Font.NORMAL,BaseColor.BLACK))
-            );
-            colum2.setHorizontalAlignment(Element.ALIGN_LEFT);
-            colum2.setFixedHeight(36f);
-            colum2.setBorder(0);
-            table.addCell(colum2);
-        }
-        table.addCell(colum3);
-        table.addCell(colum4);
+            PdfPCell name = new PdfPCell(new Paragraph("Nombre Solicitante:", fontBold));
+            name.setHorizontalAlignment(Element.ALIGN_LEFT);
+            name.setBorder(0);
+            table.addCell(name);
 
+            PdfPCell getName = new PdfPCell(new Paragraph(client.getName(), fontNormal));
+            getName.setHorizontalAlignment(Element.ALIGN_LEFT);
+            getName.setBorder(0);
+            table.addCell(getName);
+
+            PdfPCell phone = new PdfPCell(new Paragraph("Teléfono:", fontBold));
+            phone.setHorizontalAlignment(Element.ALIGN_LEFT);
+            phone.setBorder(0);
+            table.addCell(phone);
+
+            PdfPCell getPhone = new PdfPCell(new Paragraph(client.getPhone(), fontNormal));
+            getPhone.setHorizontalAlignment(Element.ALIGN_LEFT);
+            getPhone.setBorder(0);
+            table.addCell(getPhone);
+
+            PdfPCell city = new PdfPCell(new Paragraph("Ciudad:", fontBold));
+            city.setHorizontalAlignment(Element.ALIGN_LEFT);
+            city.setBorder(0);
+            table.addCell(city);
+
+            PdfPCell getCity = new PdfPCell(new Paragraph(client.getCityName(), fontNormal));
+            getCity.setHorizontalAlignment(Element.ALIGN_LEFT);
+            getCity.setBorder(0);
+            table.addCell(getCity);
+
+            PdfPCell email = new PdfPCell(new Paragraph("Correo:", fontBold));
+            email.setHorizontalAlignment(Element.ALIGN_LEFT);
+            email.setBorder(0);
+            table.addCell(email);
+
+            PdfPCell getEmail = new PdfPCell(new Paragraph(client.getEmail(), fontNormal));
+            getEmail.setHorizontalAlignment(Element.ALIGN_LEFT);
+            getEmail.setBorder(0);
+            table.addCell(getEmail);
+
+            PdfPCell address = new PdfPCell(new Paragraph("Dirección:", fontBold));
+            address.setHorizontalAlignment(Element.ALIGN_LEFT);
+            address.setBorder(0);
+            table.addCell(address);
+
+            PdfPCell getAddress = new PdfPCell(new Paragraph(client.getAddress(), fontNormal));
+            getAddress.setHorizontalAlignment(Element.ALIGN_LEFT);
+            getAddress.setBorder(0);
+            table.addCell(getAddress);
+
+            PdfPCell nit = new PdfPCell(new Paragraph("NIT:", fontBold));
+            nit.setHorizontalAlignment(Element.ALIGN_LEFT);
+            nit.setBorder(0);
+            table.addCell(nit);
+
+            PdfPCell getNit = new PdfPCell(new Paragraph(client.getNit(), fontNormal));
+            getNit.setHorizontalAlignment(Element.ALIGN_LEFT);
+            getNit.setBorder(0);
+            table.addCell(getNit);
+        }
         return  table;
     }
 
     public PdfPTable infEquipment(EquipmentInfo equipmentInfo) throws DocumentException {
 
         int size = 8;
+        Font fontBold = FontFactory.getFont("arial",size,Font.BOLD,BaseColor.BLACK);
+        Font fontNormal = FontFactory.getFont("arial",size,Font.NORMAL,BaseColor.BLACK);
         PdfPTable table = new PdfPTable(4);
-        table.setWidths(new float[] {25, 20, 25, 20});
+        table.setWidths(new float[] {18, 27, 18, 27});
         table.setWidthPercentage(90);
         table.getDefaultCell().setBorder(0);
         table.setHorizontalAlignment(Element.ALIGN_CENTER);
 
+        long epoch2 = equipmentInfo.getReceptionTimestamp();
+        String receptionTS = Utils.pdfFormat.format(epoch2*1000);
+        long epoch1 = equipmentInfo.getCalibrationTimestamp();
+        String calibrationTS = Utils.pdfFormat.format(epoch1*1000);
+
         PdfPCell title = new PdfPCell(new Paragraph("INFORMACIÓN DEL EQUIPO",
-                FontFactory.getFont("arial",9,Font.NORMAL,BaseColor.BLACK)));
+                FontFactory.getFont("arial",9,Font.BOLD,BaseColor.BLACK)));
         title.setColspan(4);
         title.setFixedHeight(14f);
         title.setBorder(0);
         title.setHorizontalAlignment(Element.ALIGN_LEFT);
-
-        PdfPCell colum1 = new PdfPCell(new Paragraph(
-                  "Equipo: "+"\n"+
-                        "Marca:"+"\n"+
-                        "Modelo:"+"\n"+
-                        "Serie: "+"\n"+
-                        "Placa: "+"\n"+
-                        "Ubicación: ",
-                FontFactory.getFont("arial",size,Font.BOLD,BaseColor.BLACK))
-        );
-        colum1.setHorizontalAlignment(Element.ALIGN_LEFT);
-        colum1.setFixedHeight(72f);
-        colum1.setBorder(0);
-
-        PdfPCell colum2 = new PdfPCell(new Paragraph(
-                equipmentInfo.getName()+"\n"
-                        +equipmentInfo.getBrand()+"\n"
-                        +equipmentInfo.getModel()+"\n"
-                        +equipmentInfo.getSerialNumber()+"\n"
-                        +equipmentInfo.getPlate()+"\n"
-                        +equipmentInfo.getLocation(),
-                FontFactory.getFont("arial",size,Font.NORMAL,BaseColor.BLACK))
-        );
-        colum2.setHorizontalAlignment(Element.ALIGN_LEFT);
-        colum2.setFixedHeight(72f);
-        colum2.setBorder(0);
-
-        PdfPCell colum3 = new PdfPCell(new Paragraph(
-                "Fecha De Recepción: "+
-                        "\n"+"Fecha De Calibración: "+
-                        "\n"+"Magnitud A Medir: "+
-                        "\n"+"Unidad: "+
-                        "\n"+"Rango De Medición: "+
-                        "\n"+"Resolución: ",
-                FontFactory.getFont("arial",size,Font.BOLD,BaseColor.BLACK))
-        );
-        colum3.setHorizontalAlignment(Element.ALIGN_LEFT);
-        colum3.setFixedHeight(72f);
-        colum3.setBorder(0);
-
-        PdfPCell colum4 = new PdfPCell(new Paragraph(
-                equipmentInfo.getReceptionTimestamp()+
-                        "\n"+equipmentInfo.getCalibrationTimestamp()+
-                        "\n"+equipmentInfo.getMeasure()+
-                        "\n"+equipmentInfo.getUnity()+
-                        "\n"+equipmentInfo.getMeasureRange()+
-                        "\n"+equipmentInfo.getResolution(),
-                FontFactory.getFont("arial",size,Font.NORMAL,BaseColor.BLACK))
-        );
-        colum4.setHorizontalAlignment(Element.ALIGN_LEFT);
-        colum4.setFixedHeight(72f);
-        colum4.setBorder(0);
-
         table.addCell(title);
-        table.addCell(colum1);
-        table.addCell(colum2);
-        table.addCell(colum3);
-        table.addCell(colum4);
+
+        PdfPCell equipo = new PdfPCell(new Paragraph("Equipo:", fontBold));
+        equipo.setHorizontalAlignment(Element.ALIGN_LEFT);
+        equipo.setBorder(0);
+        table.addCell(equipo);
+
+        PdfPCell getEquipo = new PdfPCell(new Paragraph(equipmentInfo.getName(), fontNormal));
+        getEquipo.setHorizontalAlignment(Element.ALIGN_LEFT);
+        getEquipo.setBorder(0);
+        table.addCell(getEquipo);
+
+        PdfPCell dateR = new PdfPCell(new Paragraph("Fecha De Recepción:", fontBold));
+        dateR.setHorizontalAlignment(Element.ALIGN_LEFT);
+        dateR.setBorder(0);
+        table.addCell(dateR);
+
+        PdfPCell getDateR = new PdfPCell(new Paragraph(receptionTS, fontNormal));
+        getDateR.setHorizontalAlignment(Element.ALIGN_LEFT);
+        getDateR.setBorder(0);
+        table.addCell(getDateR);
+
+        PdfPCell marca = new PdfPCell(new Paragraph("Marca:", fontBold));
+        marca.setHorizontalAlignment(Element.ALIGN_LEFT);
+        marca.setBorder(0);
+        table.addCell(marca);
+
+        PdfPCell getBrand = new PdfPCell(new Paragraph(equipmentInfo.getBrand(), fontNormal));
+        getBrand.setHorizontalAlignment(Element.ALIGN_LEFT);
+        getBrand.setBorder(0);
+        table.addCell(getBrand);
+
+        PdfPCell dateC = new PdfPCell(new Paragraph("Fecha De Calibración:", fontBold));
+        dateC.setHorizontalAlignment(Element.ALIGN_LEFT);
+        dateC.setBorder(0);
+        table.addCell(dateC);
+
+        PdfPCell getDateC = new PdfPCell(new Paragraph(calibrationTS, fontNormal));
+        getDateC.setHorizontalAlignment(Element.ALIGN_LEFT);
+        getDateC.setBorder(0);
+        table.addCell(getDateC);
+
+        PdfPCell modelo = new PdfPCell(new Paragraph("Modelo:", fontBold));
+        modelo.setHorizontalAlignment(Element.ALIGN_LEFT);
+        modelo.setBorder(0);
+        table.addCell(modelo);
+
+        PdfPCell getModelo = new PdfPCell(new Paragraph(equipmentInfo.getModel(), fontNormal));
+        getModelo.setHorizontalAlignment(Element.ALIGN_LEFT);
+        getModelo.setBorder(0);
+        table.addCell(getModelo);
+
+        PdfPCell measure = new PdfPCell(new Paragraph("Magnitud A Medir:", fontBold));
+        measure.setHorizontalAlignment(Element.ALIGN_LEFT);
+        measure.setBorder(0);
+        table.addCell(measure);
+
+        PdfPCell getMeasure = new PdfPCell(new Paragraph(equipmentInfo.getMeasure(), fontNormal));
+        getMeasure.setHorizontalAlignment(Element.ALIGN_LEFT);
+        getMeasure.setBorder(0);
+        table.addCell(getMeasure);
+
+        PdfPCell serie = new PdfPCell(new Paragraph("Serie:", fontBold));
+        serie.setHorizontalAlignment(Element.ALIGN_LEFT);
+        serie.setBorder(0);
+        table.addCell(serie);
+
+        PdfPCell getSerial = new PdfPCell(new Paragraph(equipmentInfo.getSerialNumber(), fontNormal));
+        getSerial.setHorizontalAlignment(Element.ALIGN_LEFT);
+        getSerial.setBorder(0);
+        table.addCell(getSerial);
+
+        PdfPCell unity = new PdfPCell(new Paragraph("Unidad:", fontBold));
+        unity.setHorizontalAlignment(Element.ALIGN_LEFT);
+        unity.setBorder(0);
+        table.addCell(unity);
+
+        PdfPCell getUnity = new PdfPCell(new Paragraph(equipmentInfo.getUnity(), fontNormal));
+        getUnity.setHorizontalAlignment(Element.ALIGN_LEFT);
+        getUnity.setBorder(0);
+        table.addCell(getUnity);
+
+        PdfPCell placa = new PdfPCell(new Paragraph("Placa:", fontBold));
+        placa.setHorizontalAlignment(Element.ALIGN_LEFT);
+        placa.setBorder(0);
+        table.addCell(placa);
+
+        PdfPCell getPlate = new PdfPCell(new Paragraph(equipmentInfo.getPlate(), fontNormal));
+        getPlate.setHorizontalAlignment(Element.ALIGN_LEFT);
+        getPlate.setBorder(0);
+        table.addCell(getPlate);
+
+        PdfPCell range = new PdfPCell(new Paragraph("Rango De Medición:", fontBold));
+        range.setHorizontalAlignment(Element.ALIGN_LEFT);
+        range.setBorder(0);
+        table.addCell(range);
+
+        PdfPCell getRange = new PdfPCell(new Paragraph(equipmentInfo.getMeasureRange(), fontNormal));
+        getRange.setHorizontalAlignment(Element.ALIGN_LEFT);
+        getRange.setBorder(0);
+        table.addCell(getRange);
+
+        PdfPCell location = new PdfPCell(new Paragraph("Ubicación:", fontBold));
+        location.setHorizontalAlignment(Element.ALIGN_LEFT);
+        location.setBorder(0);
+        table.addCell(location);
+
+        PdfPCell getLocation = new PdfPCell(new Paragraph(equipmentInfo.getLocation(), fontNormal));
+        getLocation.setHorizontalAlignment(Element.ALIGN_LEFT);
+        getLocation.setBorder(0);
+        table.addCell(getLocation);
+
+        PdfPCell resolution = new PdfPCell(new Paragraph("Resolución", fontBold));
+        resolution.setHorizontalAlignment(Element.ALIGN_LEFT);
+        resolution.setBorder(0);
+        table.addCell(resolution);
+
+        PdfPCell getResolution = new PdfPCell(new Paragraph(equipmentInfo.getResolution(), fontNormal));
+        getResolution.setHorizontalAlignment(Element.ALIGN_LEFT);
+        getResolution.setBorder(0);
+        table.addCell(getResolution);
 
         return  table;
     }
@@ -432,56 +545,88 @@ public class PDFService {
     public PdfPTable infTrace(TraceInfo traceInfo) throws DocumentException {
 
         int size = 8;
+        Font fontBold = FontFactory.getFont("arial",size,Font.BOLD,BaseColor.BLACK);
+        Font fontNormal = FontFactory.getFont("arial",size,Font.NORMAL,BaseColor.BLACK);
         PdfPTable table = new PdfPTable(4);
-        table.setWidths(new float[] {25, 20, 25, 20});
+        table.setWidths(new float[] {18, 27, 18, 27});
         table.setWidthPercentage(90);
         table.getDefaultCell().setBorder(0);
         table.setHorizontalAlignment(Element.ALIGN_CENTER);
 
+        long epoch1 = traceInfo.getCalibrationTimestamp();
+        String calibrationTS = Utils.pdfFormat.format(epoch1*1000);
+
         PdfPCell title = new PdfPCell(new Paragraph("INFORMACIÓN TRAZABILIDAD",
-                FontFactory.getFont("arial",9,Font.NORMAL,BaseColor.BLACK)));
+                FontFactory.getFont("arial",9,Font.BOLD,BaseColor.BLACK)));
         title.setColspan(4);
         title.setFixedHeight(14f);
         title.setBorder(0);
         title.setHorizontalAlignment(Element.ALIGN_LEFT);
-
-        PdfPCell colum1 = new PdfPCell(new Paragraph(
-                "Equipo: "+
-                        "\n"+"Modelo: "+
-                        "\n"+"Serie: "+
-                        "\n"+"Fecha de Calibración Patrón:"+
-                        "\n"+"Certificado: ",
-                FontFactory.getFont("arial",size,Font.BOLD,BaseColor.BLACK))
-        );
-        colum1.setHorizontalAlignment(Element.ALIGN_LEFT);
-        colum1.setFixedHeight(60f);
-        colum1.setBorder(0);
-
-        PdfPCell colum2 = new PdfPCell(new Paragraph(
-                traceInfo.getName()+"\n"+
-                        traceInfo.getModel()+"\n"+
-                        traceInfo.getSerialNumber()+"\n"+
-                        traceInfo.getCalibrationTimestamp()+"\n"+
-                        traceInfo.getCertificate(),
-                FontFactory.getFont("arial",size,Font.NORMAL,BaseColor.BLACK))
-        );
-        colum2.setHorizontalAlignment(Element.ALIGN_LEFT);
-        colum2.setFixedHeight(60f);
-        colum2.setBorder(0);
-
-        PdfPCell colum3 = new PdfPCell(new Paragraph(""));
-        colum3.setFixedHeight(60f);
-        colum3.setBorder(0);
-
-        PdfPCell colum4 = new PdfPCell(new Paragraph(""));
-        colum4.setFixedHeight(60f);
-        colum4.setBorder(0);
-
         table.addCell(title);
-        table.addCell(colum1);
-        table.addCell(colum2);
-        table.addCell(colum3);
-        table.addCell(colum4);
+
+        PdfPCell name = new PdfPCell(new Paragraph("Equipo:", fontBold));
+        name.setHorizontalAlignment(Element.ALIGN_LEFT);
+        name.setBorder(0);
+        table.addCell(name);
+
+        PdfPCell getName = new PdfPCell(new Paragraph(traceInfo.getName(), fontNormal));
+        getName.setHorizontalAlignment(Element.ALIGN_LEFT);
+        getName.setBorder(0);
+        table.addCell(getName);
+
+        PdfPCell empty = new PdfPCell(new Paragraph("", fontBold));
+        empty.setHorizontalAlignment(Element.ALIGN_LEFT);
+        empty.setBorder(0);
+        table.addCell(empty);
+        table.addCell(empty);
+
+        PdfPCell model = new PdfPCell(new Paragraph("Modelo:", fontBold));
+        model.setHorizontalAlignment(Element.ALIGN_LEFT);
+        model.setBorder(0);
+        table.addCell(model);
+
+        PdfPCell getModel = new PdfPCell(new Paragraph(traceInfo.getModel(), fontNormal));
+        getModel.setHorizontalAlignment(Element.ALIGN_LEFT);
+        getModel.setBorder(0);
+        table.addCell(getModel);
+        table.addCell(empty);
+        table.addCell(empty);
+
+        PdfPCell serial = new PdfPCell(new Paragraph("Serie:", fontBold));
+        serial.setHorizontalAlignment(Element.ALIGN_LEFT);
+        serial.setBorder(0);
+        table.addCell(serial);
+
+        PdfPCell getSerial = new PdfPCell(new Paragraph(traceInfo.getSerialNumber(), fontNormal));
+        getSerial.setHorizontalAlignment(Element.ALIGN_LEFT);
+        getSerial.setBorder(0);
+        table.addCell(getSerial);
+        table.addCell(empty);
+        table.addCell(empty);
+
+        PdfPCell date = new PdfPCell(new Paragraph("Fecha de Calibración Patrón:", fontBold));
+        date.setHorizontalAlignment(Element.ALIGN_LEFT);
+        date.setBorder(0);
+        table.addCell(date);
+
+        PdfPCell getCalibrationTS = new PdfPCell(new Paragraph(calibrationTS, fontNormal));
+        getCalibrationTS.setHorizontalAlignment(Element.ALIGN_LEFT);
+        getCalibrationTS.setBorder(0);
+        table.addCell(getCalibrationTS);
+        table.addCell(empty);
+        table.addCell(empty);
+
+        PdfPCell certificate = new PdfPCell(new Paragraph("Certificado:", fontBold));
+        certificate.setHorizontalAlignment(Element.ALIGN_LEFT);
+        certificate.setBorder(0);
+        table.addCell(certificate);
+
+        PdfPCell getCertificate = new PdfPCell(new Paragraph(traceInfo.getCertificate(), fontNormal));
+        getCertificate.setHorizontalAlignment(Element.ALIGN_LEFT);
+        getCertificate.setBorder(0);
+        table.addCell(getCertificate);
+        table.addCell(empty);
+        table.addCell(empty);
 
         return  table;
     }

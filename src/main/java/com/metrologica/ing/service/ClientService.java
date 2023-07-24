@@ -17,14 +17,14 @@ public class ClientService {
     @Autowired
     private ClientRepository clientRepository;
 
-    public Page<Client> findClientWithPaginationAndSorting(int offset, int pageSize, String field, String sort){
-        Page<Client> clients;
+    public List<Client> findClientWithSorting(String field, String sort){
+        List<Client> clients;
         String desc = "desc";
         if(sort.equals(desc)){
-            clients = clientRepository.findAll(PageRequest.of(offset, pageSize).withSort(Sort.by(Sort.Direction.DESC, field)));
+            clients = clientRepository.findAll(Sort.by(Sort.Direction.DESC, field));
             return clients;
         }
-        clients = clientRepository.findAll(PageRequest.of(offset, pageSize).withSort(Sort.by(Sort.Direction.ASC, field)));
+        clients = clientRepository.findAll(Sort.by(Sort.Direction.ASC, field));
         return clients;
     }
 

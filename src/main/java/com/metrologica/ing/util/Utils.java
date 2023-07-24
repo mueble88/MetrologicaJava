@@ -6,6 +6,8 @@ public class Utils {
 
     public static SimpleDateFormat sdf = new SimpleDateFormat("MM-YYYY");
 
+    public static SimpleDateFormat pdfFormat = new SimpleDateFormat("dd/MM/yyyy");
+
     public static double calculateAverage(double[] array){
 
         double totalAverage = 0.0;

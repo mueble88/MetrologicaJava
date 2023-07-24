@@ -31,16 +31,31 @@ public class BasicReport {
     @Column(name="report_name")
     private String reportName;
 
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "report_humed_in_id")
+    private HumedIn humedIn;
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "report_tem_in_id")
+    private TemIn temIn;
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "report_tem_out_id")
+    private TemOut temOut;
+
     public BasicReport() {
     }
 
-    public BasicReport(long id, String reportName , Client client, EquipmentInfo equipmentInfo, TraceInfo traceInfo, ReportFile reportFile) {
+    public BasicReport(long id, Client client, EquipmentInfo equipmentInfo, TraceInfo traceInfo, ReportFile reportFile, String reportName, HumedIn humedIn, TemIn temIn, TemOut temOut) {
         this.id = id;
         this.client = client;
         this.equipmentInfo = equipmentInfo;
         this.traceInfo = traceInfo;
-        this.reportName = reportName;
         this.reportFile = reportFile;
+        this.reportName = reportName;
+        this.humedIn = humedIn;
+        this.temIn = temIn;
+        this.temOut = temOut;
     }
 
     public long getId() {
@@ -81,5 +96,29 @@ public class BasicReport {
 
     public void setReportName(String reportName) {
         this.reportName = reportName;
+    }
+
+    public HumedIn getHumedIn() {
+        return humedIn;
+    }
+
+    public void setHumedIn(HumedIn humedIn) {
+        this.humedIn = humedIn;
+    }
+
+    public TemIn getTemIn() {
+        return temIn;
+    }
+
+    public void setTemIn(TemIn temIn) {
+        this.temIn = temIn;
+    }
+
+    public TemOut getTemOut() {
+        return temOut;
+    }
+
+    public void setTemOut(TemOut temOut) {
+        this.temOut = temOut;
     }
 }
