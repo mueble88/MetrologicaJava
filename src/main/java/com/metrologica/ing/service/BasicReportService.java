@@ -21,4 +21,8 @@ public class BasicReportService {
     public List<BasicReport> findAll() {
         return basicReportRepository.findAll();
     }
+
+    public List<BasicReport> findAllOrderByIdDesc() {
+        return basicReportRepository.findAllByOrderByIdDesc();
+    }
 }

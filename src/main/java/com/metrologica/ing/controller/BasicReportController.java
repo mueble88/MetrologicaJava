@@ -113,9 +113,7 @@ public class BasicReportController {
                                     @RequestParam(defaultValue = "name") String field,
                                     @RequestParam(defaultValue = "asc") String sort){
 
-        //Page<Client> clientWithPagination = clientService.findClientWithPaginationAndSorting(offset, pageSize, field, sort);
-        //return new APIResponseDto<>(clientWithPagination.getSize(), clientWithPagination);
-        return basicReportService.findAll();
+        return basicReportService.findAllOrderByIdDesc();
     }
 
     @GetMapping("/reportFiles")

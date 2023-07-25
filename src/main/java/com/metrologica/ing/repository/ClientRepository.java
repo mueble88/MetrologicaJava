@@ -18,6 +18,8 @@ public interface ClientRepository extends JpaRepository<Client, Long> {
 
     Client getClientById(long id);
 
+    public List<Client> findAllByOrderByNameDesc();
+
     @Modifying
     @Transactional
     @Query("UPDATE Client client SET client.name = :name, client.address = :address, client.email = :email, client.nit = :nit  WHERE client.id = :id")
