@@ -88,7 +88,7 @@ public class PDFService {
 
             Paragraph title  = new Paragraph("Informe De Calibración Trazable",
                     FontFactory.getFont("arial",14,Font.BOLD,BaseColor.BLACK)
-                    );
+            );
             title .setAlignment(Chunk.ALIGN_CENTER);
             document.add(title );
             document.add(lineBreakOne);
@@ -406,9 +406,9 @@ public class PDFService {
         table.setHorizontalAlignment(Element.ALIGN_CENTER);
 
         long epoch2 = equipmentInfo.getReceptionTimestamp();
-        String receptionTS = Utils.pdfFormat.format(epoch2*1000);
+        String receptionTS = Utils.pdfFormat.format(epoch2);
         long epoch1 = equipmentInfo.getCalibrationTimestamp();
-        String calibrationTS = Utils.pdfFormat.format(epoch1*1000);
+        String calibrationTS = Utils.pdfFormat.format(epoch1);
 
         PdfPCell title = new PdfPCell(new Paragraph("INFORMACIÓN DEL EQUIPO",
                 FontFactory.getFont("arial",9,Font.BOLD,BaseColor.BLACK)));
@@ -553,7 +553,7 @@ public class PDFService {
         table.setHorizontalAlignment(Element.ALIGN_CENTER);
 
         long epoch1 = traceInfo.getCalibrationTimestamp();
-        String calibrationTS = Utils.pdfFormat.format(epoch1*1000);
+        String calibrationTS = Utils.pdfFormat.format(epoch1);
 
         PdfPCell title = new PdfPCell(new Paragraph("INFORMACIÓN TRAZABILIDAD",
                 FontFactory.getFont("arial",9,Font.BOLD,BaseColor.BLACK)));
@@ -1349,9 +1349,9 @@ public class PDFService {
     }
 
     public PdfPTable tableResult1(double pattern,
-                                 double equipment,
-                                 double error,
-                                 double standardDesviation) throws DocumentException {
+                                  double equipment,
+                                  double error,
+                                  double standardDesviation) throws DocumentException {
 
         PdfPTable table = new PdfPTable(4);
         table.setWidths(new float[] {30,30,30,30});

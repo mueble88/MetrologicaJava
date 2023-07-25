@@ -38,7 +38,7 @@ public class ClientService {
     }
 
     public List<Client> findAll(){
-        return clientRepository.findAll();
+        return clientRepository.findAllByOrderByNameDesc();
     }
 
 

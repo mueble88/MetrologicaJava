@@ -11,4 +11,6 @@ public interface BasicReportRepository extends JpaRepository<BasicReport, Long> 
 
     List<BasicReport> findById(long id);
 
+    public List<BasicReport> findAllByOrderByIdDesc();
+
 }
