@@ -11,14 +11,14 @@ import javax.transaction.Transactional;
 import java.util.List;
 import java.util.UUID;
 
-@Repository
-public interface ReportFileRepository extends JpaRepository<ReportFile, UUID> {
+
+public interface ReportFileRepository {
 
 //    List<ReportFile> findById(UUID id);
 
-    @Modifying
-    @Transactional
-    @Query("UPDATE ReportFile report_files SET report_files.id = :id WHERE report_files.id = :id")
-    int updatePictureFields( @Param("id") long id);
+//    @Modifying
+//    @Transactional
+//    @Query("UPDATE ReportFile report_files SET report_files.id = :id WHERE report_files.id = :id")
+//    int updatePictureFields( @Param("id") long id);
 
 }

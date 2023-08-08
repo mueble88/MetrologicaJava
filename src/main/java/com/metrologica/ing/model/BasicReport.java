@@ -24,34 +24,26 @@ public class BasicReport {
     @JoinColumn(name = "trace_info_id")
     private TraceInfo traceInfo;
 
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "report_file_id")
-    private ReportFile reportFile;
-
     @Column(name="report_name")
     private String reportName;
 
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "report_humed_in_id")
-    private HumedIn humedIn;
+    @ManyToOne
+    private MeasureHolder humedIn;
 
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "report_tem_in_id")
-    private TemIn temIn;
+    @ManyToOne
+    private MeasureHolder temIn;
 
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "report_tem_out_id")
-    private TemOut temOut;
+    @ManyToOne
+    private MeasureHolder temOut;
 
     public BasicReport() {
     }
 
-    public BasicReport(long id, Client client, EquipmentInfo equipmentInfo, TraceInfo traceInfo, ReportFile reportFile, String reportName, HumedIn humedIn, TemIn temIn, TemOut temOut) {
+    public BasicReport(long id, Client client, EquipmentInfo equipmentInfo, TraceInfo traceInfo, String reportName, MeasureHolder humedIn, MeasureHolder temIn, MeasureHolder temOut) {
         this.id = id;
         this.client = client;
         this.equipmentInfo = equipmentInfo;
         this.traceInfo = traceInfo;
-        this.reportFile = reportFile;
         this.reportName = reportName;
         this.humedIn = humedIn;
         this.temIn = temIn;
@@ -98,27 +90,27 @@ public class BasicReport {
         this.reportName = reportName;
     }
 
-    public HumedIn getHumedIn() {
+    public MeasureHolder getHumedIn() {
         return humedIn;
     }
 
-    public void setHumedIn(HumedIn humedIn) {
+    public void setHumedIn(MeasureHolder humedIn) {
         this.humedIn = humedIn;
     }
 
-    public TemIn getTemIn() {
+    public MeasureHolder getTemIn() {
         return temIn;
     }
 
-    public void setTemIn(TemIn temIn) {
+    public void setTemIn(MeasureHolder temIn) {
         this.temIn = temIn;
     }
 
-    public TemOut getTemOut() {
+    public MeasureHolder getTemOut() {
         return temOut;
     }
 
-    public void setTemOut(TemOut temOut) {
+    public void setTemOut(MeasureHolder temOut) {
         this.temOut = temOut;
     }
 }

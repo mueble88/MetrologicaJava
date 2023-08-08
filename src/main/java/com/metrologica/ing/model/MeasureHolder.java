@@ -1,25 +1,31 @@
 package com.metrologica.ing.model;
 
+
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import javax.persistence.*;
+import java.util.List;
 
 @Entity
-@Table(name="humed_in")
+@Table(name="measure_holder")
 @EntityListeners(AuditingEntityListener.class)
-public class HumedIn {
+public class MeasureHolder {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
-    private Measures[] measures;
 
-    public HumedIn() {
+    @OneToMany(cascade = {CascadeType.PERSIST,CascadeType.REMOVE})
+    @JoinColumn(name = "measure_holder_id")
+    private List<Measures> measures;
+
+    public MeasureHolder() {
     }
 
-    public HumedIn(long id, Measures[] measures) {
+    public MeasureHolder(long id, List<Measures> measures) {
         this.id = id;
         this.measures = measures;
+
     }
 
     public long getId() {
@@ -30,11 +36,11 @@ public class HumedIn {
         this.id = id;
     }
 
-    public Measures[] getMeasures() {
+    public List<Measures> getMeasures() {
         return measures;
     }
 
-    public void setMeasures(Measures[] measures) {
+    public void setMeasures(List<Measures> measures) {
         this.measures = measures;
     }
 }

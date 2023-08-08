@@ -48,8 +48,8 @@ public class PDFService {
     @Value( "${pdfDirectory}" )
     private String reportDirectory;
 
-    @Autowired
-    private ReportFileRepository reportFilesRepository;
+    @Value( "${PDFDirectory}" )
+    private String pdfDirectory;
 
 
     public ReportFile savePDF( BasicReport basicReport, HumedInDto humedIn, TemInDto temIn, TemOutDto temOut) {
@@ -58,7 +58,7 @@ public class PDFService {
         ReportFile reportFile = new ReportFile();
 
         try {
-            File file = new File(reportDirectory + File.separator + basicReport.getId() + ".pdf");
+            File file = new File(pdfDirectory + File.separator + basicReport.getId() + ".pdf");
             if(!file.exists()){
                 file.createNewFile();
             }
@@ -241,7 +241,7 @@ public class PDFService {
         }
         return reportFile;
     }
-
+/*
     public ReportFile getReportFile(UUID id) {
         return reportFilesRepository.findById(id).get();
     }
@@ -250,7 +250,7 @@ public class PDFService {
         List<ReportFile> pdfs = reportFilesRepository.findAll();
         System.out.println("lista de pdf:"+pdfs);
         return pdfs;
-    }
+    }*/
 
     public Image loadFiel(String nameImg) throws IOException, BadElementException {
         Resource resource = resourceLoader.getResource("classpath:images/"+nameImg);

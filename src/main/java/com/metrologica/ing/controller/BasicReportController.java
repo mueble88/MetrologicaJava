@@ -4,8 +4,9 @@ package com.metrologica.ing.controller;
 import com.itextpdf.text.*;
 import com.metrologica.ing.dto.*;
 import com.metrologica.ing.model.*;
+import com.metrologica.ing.repository.MeasureHolderRepository;
+import com.metrologica.ing.repository.MeasuresRepository;
 import com.metrologica.ing.service.*;
-import com.metrologica.ing.util.Utils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
@@ -20,9 +21,9 @@ import javax.servlet.ServletException;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.util.Date;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
-import java.util.UUID;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
@@ -46,10 +47,20 @@ public class BasicReportController {
     @Autowired
     private PDFService pdfService;
 
+    @Autowired
+    private MeasureHolderService measureHolderService;
+
+    @Autowired
+    private MeasuresService measuresService;
+
     private String EXTENSION = ".pdf";
 
     @Value( "${pdfDirectory}" )
     private String reportDirectory;
+
+    @Value( "${PDFDirectory}" )
+    private String pdfDirectory;
+
 
     @PostMapping("/basicReport")
     public ResponseEntity<BasicReport> saveBasicReport(@RequestBody BasicReportDto basicReportDto) throws IOException, DocumentException, ServletException {
@@ -83,25 +94,37 @@ public class BasicReportController {
             traceInfo.setHumity(basicReportDto.getHumity());
             traceInfoService.save(traceInfo);
 
-            HumedInDto humedIn = new HumedInDto();
-            humedIn.setMeasures(basicReportDto.getHumedIn().getMeasures());
-            TemInDto temIn = new TemInDto();
-            temIn.setMeasures(basicReportDto.getTemIn().getMeasures());
-            TemOutDto temOut = new TemOutDto();
-            temOut.setMeasures(basicReportDto.getTemOut().getMeasures());
+            MeasureHolder measureHolderHI = new MeasureHolder();
+            measureHolderHI.setMeasures(Arrays.asList(basicReportDto.getHumedIn().getMeasures()));
+            measureHolderService.save(measureHolderHI);
+
+            MeasureHolder measureHolderTI = new MeasureHolder();
+            measureHolderTI.setMeasures(Arrays.asList(basicReportDto.getTemIn().getMeasures()));
+            measureHolderService.save(measureHolderTI);
+
+            MeasureHolder measureHolderTO = new MeasureHolder();
+            measureHolderTO.setMeasures(Arrays.asList(basicReportDto.getTemOut().getMeasures()));
+            measureHolderService.save(measureHolderTO);
+
+            HumedInDto humedI = new HumedInDto();
+            humedI.setMeasures(basicReportDto.getHumedIn().getMeasures());
+            TemInDto temI = new TemInDto();
+            temI.setMeasures(basicReportDto.getTemIn().getMeasures());
+            TemOutDto temO = new TemOutDto();
+            temO.setMeasures(basicReportDto.getTemOut().getMeasures());
 
             BasicReport basicReport = new BasicReport();
             basicReport.setTraceInfo(traceInfo);
             basicReport.setEquipmentInfo(equipmentInfo);
             basicReport.setClient(client);
             basicReport.setReportName(basicReportDto.getReportName());
+            basicReport.setHumedIn(measureHolderHI);
+            basicReport.setTemIn(measureHolderTI);
+            basicReport.setTemOut(measureHolderTO);
             basicReportService.save(basicReport);
 
-            //TODO: Donde se estan guardando las medidas tomadas en la bd? Hay q agregarlas
-
-
-            String nameFile = basicReportDto.getReportName() +"-"+ Utils.sdf.format(new Date())+ " Termohigrometro(H-IN-OUT).pdf";
-            ReportFile reportFile = pdfService.savePDF(basicReport, humedIn, temIn, temOut);
+//            String nameFile = basicReportDto.getReportName() +"-"+ Utils.sdf.format(new Date())+ " Termohigrometro(H-IN-OUT).pdf";
+            pdfService.savePDF(basicReport, humedI, temI, temO);
             return new ResponseEntity<BasicReport>(basicReport, HttpStatus.OK);
         }
         return new ResponseEntity<BasicReport>(HttpStatus.BAD_REQUEST);
@@ -116,13 +139,15 @@ public class BasicReportController {
         return basicReportService.findAllOrderByIdDesc();
     }
 
+
+/*
     @GetMapping("/reportFiles")
     private ResponseEntity<List<ReportFile>> allReportFiles(){
         List<ReportFile> pdfs = pdfService.getAllReportFile();
         return ResponseEntity
                 .ok()
                 .body(pdfs);
-    }
+    }*/
 
     /*
     @GetMapping("/reportFile/{id}")
@@ -144,7 +169,7 @@ public class BasicReportController {
     @GetMapping("/download/reportFile/{id}")
     public ResponseEntity<Resource> downloadPdf(@PathVariable("id") Long id) throws IOException {
 
-        File file = new File(reportDirectory + File.separator + id+".pdf");
+        File file = new File(pdfDirectory + File.separator + id+".pdf");
 
         if(file.exists()){
             HttpHeaders header = new HttpHeaders();
