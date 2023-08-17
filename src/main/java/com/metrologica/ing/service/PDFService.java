@@ -9,9 +9,11 @@ import com.metrologica.ing.dto.TemOutDto;
 import com.metrologica.ing.model.*;
 import com.metrologica.ing.repository.ReportFileRepository;
 import com.metrologica.ing.util.FooterEvent;
+import com.metrologica.ing.util.GraphicUtil;
 import com.metrologica.ing.util.Utils;
 import org.apache.commons.io.IOUtils;
 import org.apache.tomcat.util.http.fileupload.ByteArrayOutputStream;
+import org.jfree.chart.JFreeChart;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
@@ -19,6 +21,8 @@ import org.springframework.core.io.ResourceLoader;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ResourceUtils;
 
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -230,6 +234,17 @@ public class PDFService {
             document.add(lineBreakTable);
             document.add(tableResultTemOut2);
             document.add(lineBreakFooter);
+
+            // 6ta page------------------------------------------------------------------->
+            document.newPage();
+            document.add(header);
+            document.add(lineBreak);
+            PdfPTable imageGraphic = tableGraphic(humedIn, temIn, temOut);
+            document.add(imageGraphic);
+            document.add(lineBreak);
+            PdfPTable paragraphGraphic = paragraphGraphic();
+            document.add(paragraphGraphic);
+
 
             // Cierra el documento
             document.close();
@@ -821,6 +836,7 @@ public class PDFService {
 
         return table;
     }
+
 
     public PdfPTable calibrationHumedTable(EquipmentInfo equipmentInfo, TraceInfo traceInfo) throws DocumentException {
 
@@ -1475,6 +1491,99 @@ public class PDFService {
         table.addCell(cellIncetExp);
 
         return table;
+    }
+
+    public PdfPTable tableGraphic(HumedInDto humedIn, TemInDto temIn, TemOutDto temOut ) throws DocumentException, IOException {
+
+        PdfPTable table = new PdfPTable(2);
+        table.setWidths(new float[] {45, 45});
+        table.setWidthPercentage(90);
+        table.getDefaultCell().setBorder(0);
+        table.setHorizontalAlignment(Element.ALIGN_CENTER);
+
+        Image imageHumedIn = graphicHumedIn(humedIn);
+        PdfPCell img1 = new PdfPCell(imageHumedIn);
+        img1.setColspan(2);
+        img1.setHorizontalAlignment(Element.ALIGN_CENTER);
+        img1.setBorder(0);
+        img1.setPaddingBottom(5);
+        table.addCell(img1);
+
+        Image imageTemIn = graphicTemIn(temIn);
+        PdfPCell img2 = new PdfPCell(imageTemIn);
+        img2.setHorizontalAlignment(Element.ALIGN_CENTER);
+        img2.setBorder(0);
+        img2.setPaddingTop(5);
+        table.addCell(img2);
+
+        Image imageTemOut = graphicTemOut(temOut);
+        PdfPCell img3 = new PdfPCell(imageTemOut);
+        img3.setHorizontalAlignment(Element.ALIGN_CENTER);
+        img3.setBorder(0);
+        img3.setPaddingTop(5);
+        table.addCell(img3);
+
+        return table;
+    }
+
+    public PdfPTable paragraphGraphic() throws DocumentException {
+
+        PdfPTable table = new PdfPTable(1);
+        table.setWidths(new float[] {90});
+        table.setWidthPercentage(90);
+        table.getDefaultCell().setBorder(0);
+        table.setHorizontalAlignment(Element.ALIGN_CENTER);
+        int size = 12;
+
+        PdfPCell cellParagraph = new PdfPCell(new Paragraph("Se realizó protocolo de calibración del instrumento biomédico, como\n" +
+                "resultado se evidencia estar dentro de la tolerancia permitida según\n" +
+                "fabricante, por lo tanto el equipo se encuentra en condiciones para el\n" +
+                "correcto funcionamiento.",
+                FontFactory.getFont("arial",size,Font.NORMAL,BaseColor.BLACK)));
+        cellParagraph.setHorizontalAlignment(Element.ALIGN_CENTER);
+        cellParagraph.setBorder(0);
+        table.addCell(cellParagraph);
+
+        return table;
+    }
+
+    public Image graphicHumedIn(HumedInDto humedIn) throws IOException, BadElementException {
+
+        String title = "Calibración en Humedad";
+        String equipoH = "EQUIPO H%";
+        String patron = "PATRON";
+        String error = "ERROR";
+        List<Measures> measures = List.of(humedIn.getMeasures());
+        BufferedImage bufferedImage = GraphicUtil.SpiderWebChart(measures, title, equipoH, patron, error);
+        Image image = Image.getInstance(bufferedImage, null);
+
+        return  image;
+    }
+
+    public Image graphicTemIn(TemInDto temIn) throws IOException, BadElementException{
+
+        String title = "Comportamiento en Temperatura";
+        String equipoIn = "EQUIPO IN";
+        String patron = "PATRON";
+        String error = "ERROR";
+        List<Measures> measures = List.of(temIn.getMeasures());
+        BufferedImage bufferedImage = GraphicUtil.SpiderWebChart(measures, title, equipoIn, patron, error);
+        Image image = Image.getInstance(bufferedImage, null);
+
+        return  image;
+    }
+
+    public Image graphicTemOut(TemOutDto temOut) throws IOException, BadElementException{
+
+        String title = "Comportamiento en Temperatura OUT";
+        String equipoOut = "EQUIPO OUT";
+        String patron = "PATRON";
+        String error = "ERROR";
+        List<Measures> measures = List.of(temOut.getMeasures());
+        BufferedImage bufferedImage = GraphicUtil.SpiderWebChart(measures, title, equipoOut, patron, error);
+        Image image = Image.getInstance(bufferedImage, null);
+
+        return  image;
     }
 
 
