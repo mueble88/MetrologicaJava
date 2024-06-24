@@ -1554,7 +1554,7 @@ public class PDFService {
         String patron = "PATRON";
         String error = "ERROR";
         List<Measures> measures = List.of(humedIn.getMeasures());
-        BufferedImage bufferedImage = GraphicUtil.SpiderWebChart(measures, title, equipoH, patron, error);
+        BufferedImage bufferedImage = GraphicUtil.spiderWebChart(measures, title, equipoH, patron, error);
         Image image = Image.getInstance(bufferedImage, null);
 
         return  image;
@@ -1567,7 +1567,7 @@ public class PDFService {
         String patron = "PATRON";
         String error = "ERROR";
         List<Measures> measures = List.of(temIn.getMeasures());
-        BufferedImage bufferedImage = GraphicUtil.SpiderWebChart(measures, title, equipoIn, patron, error);
+        BufferedImage bufferedImage = GraphicUtil.spiderWebChart(measures, title, equipoIn, patron, error);
         Image image = Image.getInstance(bufferedImage, null);
 
         return  image;
@@ -1580,7 +1580,7 @@ public class PDFService {
         String patron = "PATRON";
         String error = "ERROR";
         List<Measures> measures = List.of(temOut.getMeasures());
-        BufferedImage bufferedImage = GraphicUtil.SpiderWebChart(measures, title, equipoOut, patron, error);
+        BufferedImage bufferedImage = GraphicUtil.spiderWebChart(measures, title, equipoOut, patron, error);
         Image image = Image.getInstance(bufferedImage, null);
 
         return  image;

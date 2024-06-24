@@ -10,9 +10,13 @@ import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.LegendItemSource;
+import org.jfree.chart.axis.ValueAxis;
+import org.jfree.chart.labels.CategoryItemLabelGenerator;
 import org.jfree.chart.labels.StandardCategoryToolTipGenerator;
 import org.jfree.chart.plot.PlotOrientation;
+import org.jfree.chart.plot.PolarPlot;
 import org.jfree.chart.plot.SpiderWebPlot;
+import org.jfree.chart.renderer.PolarItemRenderer;
 import org.jfree.chart.title.LegendTitle;
 import org.jfree.chart.title.TextTitle;
 import org.jfree.chart.title.Title;
@@ -22,10 +26,7 @@ import org.jfree.chart.ui.RectangleInsets;
 import org.jfree.chart.ui.Size2D;
 import org.jfree.data.category.CategoryDataset;
 import org.jfree.data.category.DefaultCategoryDataset;
-import org.jfree.data.xy.DefaultXYDataset;
-import org.jfree.data.xy.XYDataset;
-import org.jfree.data.xy.XYSeries;
-import org.jfree.data.xy.XYSeriesCollection;
+import org.jfree.data.xy.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
@@ -50,7 +51,7 @@ public class GraphicUtil {
     @Autowired
     private ResourceLoader resourceLoader;
 
-    public static BufferedImage SpiderWebChart(List<Measures> measures, String title, String equipment, String pattern, String error) throws IOException {
+    public static BufferedImage spiderWebChart(List<Measures> measures, String title, String equipment, String pattern, String error) throws IOException {
 
         CategoryDataset dataset = createDataset(measures, equipment, pattern, error);
         JFreeChart jfreechart = createChart(dataset, title);
@@ -101,6 +102,8 @@ public class GraphicUtil {
         plot.setHeadPercent(0.01); // Tamaño de la cabeza de la línea en porcentaje
         plot.setWebFilled(true); //color fondo de las graficas
 //        plot.setWebColor(Color.GRAY);
+
+
 /*
         // Personalizar el eje radial
         DecimalFormat decimalFormat = new DecimalFormat("#.##"); // Formato para los números en el eje
@@ -150,27 +153,51 @@ public class GraphicUtil {
         legendtitle.setPadding(1,1,1,1);
         legendtitle.setItemPaint(Color.DARK_GRAY); // letra de los item
         legendtitle.setItemLabelPadding(new RectangleInsets(1,3,1,3));//items
-
-//        Rectangle2D rectangle = new Rectangle(2,8,2,8);
         RectangleEdge rectangleEdge = RectangleEdge.opposite(RectangleEdge.BOTTOM);
         legendtitle.setLegendItemGraphicEdge(rectangleEdge);
-//        Double rect = RectangleEdge.coordinate(rectangle,rectangleEdge);
-//        legendtitle.setLegendItemGraphicEdge(RectangleEdge.opposite(RectangleEdge.BOTTOM));
-
         legendtitle.setLegendItemGraphicPadding(new RectangleInsets(5,5,1,5));//paddinng de los puntos
         legendtitle.setItemLabelPadding(new RectangleInsets(2,5,2,5)); //paddinng de las letras
         legendtitle.setBorder(0.1,0.1,0.1,0.1);//borde de los items
+
 //        Size2D size2D = new Size2D(5,5);
 //        RectangleAnchor rectangleAnchor = null;
 //        Rectangle2D rectangle2D = RectangleAnchor.createRectangle(size2D, 5, 8, RectangleAnchor.valueOf("hola"));
 //        Rectangle2D rectangle = new Rectangle(2,8,2,8);
 //        legendtitle.setBounds(rectangle);
-
 //        legendtitle.setLegendItemGraphicAnchor(rectangle2D);
 //        legendtitle.setMargin(1,1,1,1);
+
         chart.addSubtitle(legendtitle);
 
         return chart;
+    }
+
+
+/*
+    public static BufferedImage createPolarPlot(String title) throws IOException {
+
+        // Crear un conjunto de datos
+        DefaultTableXYDataset dataset = new DefaultTableXYDataset();
+        XYSeries series = new XYSeries("Data Series",false,false);
+        series.add(0, 1);
+        series.add(Math.PI / 4, 0.5);
+        series.add(Math.PI / 2, 0.8);
+        // Agregar más puntos según sea necesario
+        dataset.addSeries(series);
+
+        // Crear el gráfico de polar plot
+        JFreeChart chart = ChartFactory.createPolarChart(
+                title,
+                dataset,
+                true,
+                true,
+                false
+        );
+
+        //guardar imagen
+        BufferedImage image = chart.createBufferedImage(170, 210);
+        ImageIO.write(image, "png", new File("img.png"));
+        return image;
     }
 
 
@@ -206,7 +233,7 @@ public class GraphicUtil {
         ImageIO.write(image, "png", new File(name + ".png"));
         name = name + 1;
         return image;
-    }
+    }*/
 }
 
 
